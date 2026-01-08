@@ -63,6 +63,7 @@ dependencies {
     implementation(libs.play.services.gcm)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.compose.ui.text)
+    implementation(libs.androidx.ui)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -77,5 +78,6 @@ dependencies {
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-firestore")
     implementation("androidx.datastore:datastore-preferences:1.2.0")
+    implementation("androidx.compose.material:material-icons-extended")
 
 }

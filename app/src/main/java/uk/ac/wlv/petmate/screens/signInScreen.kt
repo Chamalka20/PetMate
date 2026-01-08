@@ -64,7 +64,7 @@ fun SignInScreen(
 
         if (signInSuccess) {
 
-            navController.navigate("home") {
+            navController.navigate("main") {
                 popUpTo("signIn") { inclusive = true }
             }
         }
