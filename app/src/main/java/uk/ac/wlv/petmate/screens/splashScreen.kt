@@ -18,7 +18,7 @@ import uk.ac.wlv.petmate.R
 @Composable
 fun SplashScreen(onFinished: () -> Unit) {
     LaunchedEffect(true) {
-        delay(2000) // 2 seconds
+        delay(2000)
         onFinished()
     }
 
