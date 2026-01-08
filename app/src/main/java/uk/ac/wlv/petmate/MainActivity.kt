@@ -8,7 +8,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import uk.ac.wlv.petmate.navigation.PetMateNavHost
+import uk.ac.wlv.petmate.navigation.NavGraph
 import uk.ac.wlv.petmate.ui.theme.PetMateTheme
 
 
@@ -32,7 +32,7 @@ class MainActivity : ComponentActivity() {
                 val googleSignInClient = remember {
                     GoogleSignIn.getClient(context, gso)
                 }
-                PetMateNavHost(googleSignInClient)
+                NavGraph(googleSignInClient)
             }
         }
     }
