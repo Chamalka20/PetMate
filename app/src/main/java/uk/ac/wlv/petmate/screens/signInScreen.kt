@@ -1,7 +1,6 @@
 package uk.ac.wlv.petmate.screens
 
-import android.app.Activity
-import android.util.Log
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -19,6 +18,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -34,12 +34,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import org.koin.androidx.compose.koinViewModel
 import uk.ac.wlv.petmate.R
 import uk.ac.wlv.petmate.components.ImageTextButton
+import uk.ac.wlv.petmate.core.SnackbarController
+import uk.ac.wlv.petmate.core.UiState
+import uk.ac.wlv.petmate.model.User
 import uk.ac.wlv.petmate.viewmodel.AuthViewModel
 
 
@@ -49,9 +51,9 @@ fun SignInScreen(
     googleSignInClient: GoogleSignInClient,
     viewModel: AuthViewModel = koinViewModel()
 ) {
+    val loginState by viewModel.loginState.collectAsState()
 
-    val signInSuccess by viewModel.signInSuccess
-
+    val context = LocalContext.current
 
     val launcher = rememberLauncherForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -60,35 +62,52 @@ fun SignInScreen(
         viewModel.signIn(task)
     }
 
-    LaunchedEffect(signInSuccess) {
+    // Handle login state changes
+    LaunchedEffect(loginState) {
+        when (val state = loginState) {
+            is UiState.Success<User> -> {
+                SnackbarController.showSuccess("Login successful!")
+                navController.navigate("main") {
+                    popUpTo("signIn") { inclusive = true }
+                }
 
-        if (signInSuccess) {
+                viewModel.resetLoginState()
+            }
 
-            navController.navigate("main") {
-                popUpTo("signIn") { inclusive = true }
+            is UiState.Error -> {
+                SnackbarController.showError(state.message)
+
+            }
+
+            is UiState.Loading -> {
+                // Loading state handled in UI
+            }
+
+            is UiState.Idle -> {
+                // Idle state
             }
         }
     }
 
-
-    val error by viewModel.errorState
-    val isLoading by viewModel.isLoading
+    // Observe errors from BaseViewModel (for additional error handling)
+    LaunchedEffect(Unit) {
+        viewModel.error.collect { errorMessage ->
+            Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
+        }
+    }
 
     SignInScreenContent(
         onGoogleSignInClick = {
             launcher.launch(googleSignInClient.signInIntent)
         },
-        error = error,
-        isLoading = isLoading
-
+        loginState = loginState,
     )
 }
 
 @Composable
 fun SignInScreenContent(
     onGoogleSignInClick: () -> Unit,
-    error: String? = null,
-    isLoading: Boolean
+    loginState: UiState<User>,
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
 
@@ -157,16 +176,14 @@ fun SignInScreenContent(
 
             ImageTextButton(
                 text = "Sign in with Google",
-                isLoading = isLoading,
+                isLoading = loginState is UiState.Loading ,
                 imageRes = R.drawable.google_logo,
                 onClick = onGoogleSignInClick
             )
 
-            error?.let {
-                Spacer(modifier = Modifier.height(16.dp))
-                Text(it, color = Color.Red)
-            }
+
         }
+
     }
 }
 
@@ -175,8 +192,7 @@ fun SignInScreenContent(
 fun SignInScreenPreview() {
         SignInScreenContent(
             onGoogleSignInClick = {},
-            error = null,
-            isLoading = false
+            loginState = UiState.Idle,
         )
 }
 

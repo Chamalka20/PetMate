@@ -7,9 +7,11 @@ import org.koin.dsl.module
 import uk.ac.wlv.petmate.data.datasources.local.UserCache
 import uk.ac.wlv.petmate.data.datasources.local.UserCacheImpl
 import uk.ac.wlv.petmate.data.datasources.remote.FirebaseUserDataSource
+import uk.ac.wlv.petmate.data.network.InternetChecker
 import uk.ac.wlv.petmate.data.repository.AuthRepository
 import uk.ac.wlv.petmate.data.repository.impl.AuthRepositoryImpl
 import uk.ac.wlv.petmate.viewmodel.AuthViewModel
+import uk.ac.wlv.petmate.viewmodel.BaseViewModel
 import uk.ac.wlv.petmate.viewmodel.SessionViewModel
 
 val viewModelModule = module {
@@ -26,7 +28,11 @@ val viewModelModule = module {
             firebaseDataSource = get()
         )
     }
+    single { InternetChecker(androidContext()) }
 
+    viewModel {
+        BaseViewModel()
+    }
     viewModel {
         SessionViewModel(get())
     }
