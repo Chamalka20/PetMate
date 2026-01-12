@@ -21,6 +21,8 @@ koin = "3.5.6"
 material3 = "1.4.0"
 uiText = "1.10.0"
 ui = "1.10.0"
+lifecycleViewmodelKtx = "2.10.0"
+foundation = "1.10.0"
 
 
 [libraries]
@@ -52,6 +54,8 @@ koin-compose = { module = "io.insert-koin:koin-androidx-compose", version.ref = 
 androidx-material3 = { group = "androidx.compose.material3", name = "material3", version.ref = "material3" }
 androidx-compose-ui-text = { group = "androidx.compose.ui", name = "ui-text", version.ref = "uiText" }
 androidx-ui = { group = "androidx.compose.ui", name = "ui", version.ref = "ui" }
+androidx-lifecycle-viewmodel-ktx = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "lifecycleViewmodelKtx" }
+androidx-compose-foundation = { group = "androidx.compose.foundation", name = "foundation", version.ref = "foundation" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
