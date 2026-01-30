@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -42,36 +43,58 @@ import uk.ac.wlv.petmate.components.ImageTextButton
 import uk.ac.wlv.petmate.core.SnackbarController
 import uk.ac.wlv.petmate.core.UiState
 import uk.ac.wlv.petmate.model.User
+import uk.ac.wlv.petmate.ui.theme.DisplayFontFamily
 import uk.ac.wlv.petmate.viewmodel.AuthViewModel
+import uk.ac.wlv.petmate.viewmodel.PetProfileViewModel
 
 
 @Composable
 fun SignInScreen(
     navController: NavHostController,
     googleSignInClient: GoogleSignInClient,
-    viewModel: AuthViewModel = koinViewModel()
-) {
-    val loginState by viewModel.loginState.collectAsState()
+    authViewModel: AuthViewModel = koinViewModel(),
+    petProfileViewModel: PetProfileViewModel = koinViewModel(),
 
-    val context = LocalContext.current
+    ) {
+    val loginState by authViewModel.loginState.collectAsState()
+    val petListState by petProfileViewModel.petListState.collectAsState()
 
     val launcher = rememberLauncherForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
         val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
-        viewModel.signIn(task)
+        authViewModel.signIn(task)
     }
 
     // Handle login state changes
     LaunchedEffect(loginState) {
         when (val state = loginState) {
             is UiState.Success<User> -> {
-                SnackbarController.showSuccess("Login successful!")
-                navController.navigate("main") {
-                    popUpTo("signIn") { inclusive = true }
+                when (val pets = petListState) {
+                    is UiState.Success -> {
+                        val destination =
+                            if (pets.data.isEmpty()) "petProfileSetup"
+                            else "main"
+
+                        SnackbarController.showSuccess("Login successful!")
+
+                        navController.navigate(destination) {
+                            popUpTo("signIn") { inclusive = true }
+                        }
+
+                        authViewModel.resetLoginState()
+                    }
+
+                    is UiState.Error -> {
+                        // No pets or error → force setup
+                        navController.navigate("petProfileSetup") {
+                            popUpTo("signIn") { inclusive = true }
+                        }
+                    }
+
+                    else -> Unit
                 }
 
-                viewModel.resetLoginState()
             }
 
             is UiState.Error -> {
@@ -89,12 +112,6 @@ fun SignInScreen(
         }
     }
 
-    // Observe errors from BaseViewModel (for additional error handling)
-    LaunchedEffect(Unit) {
-        viewModel.error.collect { errorMessage ->
-            Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
-        }
-    }
 
     SignInScreenContent(
         onGoogleSignInClick = {
@@ -118,12 +135,6 @@ fun SignInScreenContent(
             modifier = Modifier.fillMaxSize()
         )
 
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color.Black.copy(alpha = 0.45f))
-        )
-
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -134,20 +145,19 @@ fun SignInScreenContent(
 
             Text(
                 "Welcome to",
-                color = Color.White.copy(alpha = 0.8f)
+                color = Color.Black
             )
             Spacer(modifier = Modifier.height(12.dp))
-            Row(verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center){
+
                 Text(
                     buildAnnotatedString {
                         withStyle(
-                            style = SpanStyle(color = Color(0xFFFF9800))
+                            style = SpanStyle(color = Color(0xFFFF9800,), fontFamily = DisplayFontFamily,)
                         ) {
                             append("Pet")
                         }
                         withStyle(
-                            style = SpanStyle(color = Color.White)
+                            style = SpanStyle(color = Color.Black, fontFamily = DisplayFontFamily,)
                         ) {
                             append("Mate")
                         }
@@ -155,21 +165,13 @@ fun SignInScreenContent(
                     fontSize = 28.sp,
                     fontWeight = FontWeight.Bold
                 )
-                Spacer(modifier = Modifier.width(1.dp))
-                Image(
-                    painter = painterResource(id =R.drawable.dog_foot ),
-                    contentDescription = null,
-                    modifier = Modifier.size(45.dp)
-                )
 
-
-            }
 
             Spacer(modifier = Modifier.height(12.dp))
 
             Text(
                 "Sign in to continue",
-                color = Color.White.copy(alpha = 0.8f)
+                color = Color.Black
             )
 
             Spacer(modifier = Modifier.height(32.dp))
@@ -178,7 +180,10 @@ fun SignInScreenContent(
                 text = "Sign in with Google",
                 isLoading = loginState is UiState.Loading ,
                 imageRes = R.drawable.google_logo,
-                onClick = onGoogleSignInClick
+                onClick = onGoogleSignInClick,
+                backgroundColor = MaterialTheme.colorScheme.primary,
+                textColor = Color.White,
+                progressIndicatorColor = Color.White,
             )
 
 

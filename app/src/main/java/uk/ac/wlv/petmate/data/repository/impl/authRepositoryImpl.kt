@@ -16,21 +16,17 @@ class AuthRepositoryImpl(
 
     override suspend fun handleSignInResult(
         task: Task<GoogleSignInAccount>
-    ): Result<User> {
+    ): User {
 
-        return try {
             val account = task.getResult(Exception::class.java)
 
             val user = firebaseDataSource.signInWithGoogle(account)
-
             // 💾 Cache locally
             userCache.saveUser(user)
 
             Result.success(user)
 
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
+        return user
     }
 
     override suspend fun getCachedUser(): User? {
