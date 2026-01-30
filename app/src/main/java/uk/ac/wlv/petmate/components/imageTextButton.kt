@@ -25,7 +25,10 @@ fun ImageTextButton(
     text: String,
      imageRes: Int? = null,
     isLoading: Boolean = false,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    backgroundColor: Color = Color.White,
+    textColor: Color = Color.Black,
+    progressIndicatorColor:Color = Color.Black,
 ) {
     Button(
         onClick = {
@@ -34,7 +37,7 @@ fun ImageTextButton(
             }
         },
         colors = ButtonDefaults.buttonColors(
-            containerColor = Color.White
+            containerColor = backgroundColor
         ),
         modifier = Modifier
             .fillMaxWidth()
@@ -43,7 +46,7 @@ fun ImageTextButton(
     ) {
         if (isLoading) {
             CircularProgressIndicator(
-                color = Color.Black,
+                color = progressIndicatorColor,
                 strokeWidth = 2.dp,
                 modifier = Modifier.size(22.dp)
             )
@@ -63,7 +66,7 @@ fun ImageTextButton(
 
                 Text(
                     text = text,
-                    color = Color.Black,
+                    color = textColor,
                     fontWeight = FontWeight.Medium
                 )
             }
