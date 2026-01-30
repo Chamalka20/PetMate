@@ -30,10 +30,6 @@ open class BaseViewModel(
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
-    // Error handling
-    private val _error = MutableSharedFlow<String>()
-    val error: SharedFlow<String> = _error.asSharedFlow()
-
     init {
         observeConnectivity()
     }
@@ -59,9 +55,11 @@ open class BaseViewModel(
 
     // Show error message
     protected fun showError(message: String) {
-        viewModelScope.launch {
-            _error.emit(message)
-        }
+        SnackbarController.showError(message)
+    }
+
+    protected fun showSuccess(message: String) {
+        SnackbarController.showSuccess(message)
     }
 
     // Execute with internet check

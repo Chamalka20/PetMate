@@ -26,7 +26,7 @@ class MainActivity : ComponentActivity() {
 
 
         setContent {
-            PetMateTheme {
+            PetMateTheme(dynamicColor = false ) {
                 val context = LocalContext.current
                 val gso = remember {
                     GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)

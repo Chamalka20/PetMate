@@ -7,7 +7,7 @@ val PetOrange = Color(0xFFFF9800)
 val PetGreen = Color(0xFF4CAF50)
 val PetBrown = Color(0xFF795548)
 val PetBackground = Color(0xFFFFFDF9)
-val PetSurface = Color(0xFFFFFFFF)
+val PetSurface =Color(0xFFFFF5DA)
 
 //  Dark theme
 val PetOrangeDark = Color(0xFFFFB74D)

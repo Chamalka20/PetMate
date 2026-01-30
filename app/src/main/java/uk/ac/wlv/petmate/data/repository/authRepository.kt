@@ -9,7 +9,7 @@ interface AuthRepository {
 
     suspend fun handleSignInResult(
         task: Task<GoogleSignInAccount>
-    ): Result<User>
+    ): User
 
     suspend fun getCachedUser(): User?
 }
