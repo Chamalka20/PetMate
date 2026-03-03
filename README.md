@@ -1,0 +1,103 @@
+# 🐾 PetMate
+
+PetMate is an Android mobile application built using Kotlin. The app helps pet owners manage their pets, track activities, and connect with other pet lovers.
+
+The application follows modern Android development practices including MVVM architecture, Jetpack Compose, and Firebase integration.
+
+---
+
+## 📱 Features
+
+- Add and manage multiple pets
+- Track pet activities (walking, feeding, vet visits, etc.)
+- Maintain pet care records
+- Activity reminders and notifications
+- Connect with other pet lovers
+- Secure authentication using Firebase
+- Modern Material Design UI
+- Built with Jetpack Compose
+
+---
+
+## 🛠️ Tech Stack
+
+- **Language:** Kotlin
+- **Architecture:** MVVM
+- **UI Toolkit:** Jetpack Compose
+- **Backend & Database:** Firebase (Authentication & Firestore)
+- **Design System:** Material Design
+- **Async Handling:** Coroutines & Flow
+
+---
+
+## 📂 Project Structure
+
+```
+com.yourpackage.petmate
+│
+├── data            # Data sources, models, repositories
+├── ui              # Screens and Compose UI components
+├── viewmodel       # ViewModels (MVVM)
+├── utils           # Utility classes
+└── di              # Dependency injection (if used)
+```
+
+---
+
+## 🚀 Getting Started
+
+### 1️⃣ Clone the Repository
+
+```bash
+git clone https://github.com/Chamalka20/PetMate
+```
+
+### 2️⃣ Open in Android Studio
+
+- Open Android Studio
+- Select **Open an Existing Project**
+- Choose the cloned folder
+
+### 3️⃣ Firebase Setup
+
+1. Go to Firebase Console
+2. Create a new project
+3. Add an Android app
+4. Download `google-services.json`
+5. Place it inside the `app/` directory
+6. Enable Authentication and Cloud Firestore
+
+### 4️⃣ Run the App
+
+Connect a device or emulator and press **Run ▶**
+
+---
+
+## 🧱 Architecture Overview
+
+PetMate follows the **MVVM (Model-View-ViewModel)** architecture:
+
+- **Model** → Handles data and business logic
+- **View** → Jetpack Compose UI
+- **ViewModel** → Manages UI-related data and state
+
+This ensures clean separation of concerns, scalability, and maintainability.
+
+---
+
+## 🤝 Contributing
+
+1. Fork the project
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes
+4. Push to the branch
+5. Open a Pull Request
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License.
+
+
+
