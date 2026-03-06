@@ -67,6 +67,43 @@ git clone https://github.com/Chamalka20/PetMate
 5. Place it inside the `app/` directory
 6. Enable Authentication and Cloud Firestore
 
+## ☁️ Cloudinary Setup (Image Upload)
+
+PetMate uses **Cloudinary** to upload and manage pet images.
+
+### 1️⃣ Create Cloudinary Account
+
+1. Go to https://cloudinary.com
+2. Create a free account
+3. Open the **Dashboard**
+4. Copy the following credentials:
+
+- Cloud Name
+- API Key
+- API Secret
+
+### 2️⃣ Add Credentials to `local.properties`
+
+Open the `local.properties` file in the project root and add:
+
+```properties
+cloudinary.cloud.name=YOUR_CLOUD_NAME
+cloudinary.api.key=YOUR_API_KEY
+cloudinary.api.secret=YOUR_API_SECRET
+```
+
+Example:
+
+```properties
+cloudinary.cloud.name=petmatecloud
+cloudinary.api.key=123456789012345
+cloudinary.api.secret=abc123xyz456secret
+```
+
+⚠️ `local.properties` is ignored by Git, so your credentials stay secure.
+
+---
+
 ### 4️⃣ Run the App
 
 Connect a device or emulator and press **Run ▶**
