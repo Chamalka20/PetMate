@@ -26,23 +26,31 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.AlertDialog
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import uk.ac.wlv.petmate.components.NetworkCircleImage
 import uk.ac.wlv.petmate.core.UiState
 import uk.ac.wlv.petmate.data.model.Pet
+import uk.ac.wlv.petmate.ui.theme.PrimaryFontFamily
 import uk.ac.wlv.petmate.viewmodel.PetProfileViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -54,6 +62,7 @@ fun PetDetailsScreen(
 ) {
 
     val petState by petProfileViewModel.selectedPetState.collectAsState()
+    var showDeleteDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(petId) {
         petProfileViewModel.loadPet(petId)
@@ -95,16 +104,47 @@ fun PetDetailsScreen(
                             }
                         },
                         actions = {
-                            IconButton(onClick = {}) {
+                            IconButton(onClick = {
+                                petProfileViewModel.populatePetForEdit(pet)
+                                navController.navigate("petEditScreen/${pet.id}")
+                            }) {
                                 Icon(Icons.Default.Edit, "Edit")
                             }
-                            IconButton(onClick = {}) {
+                            IconButton(onClick = { showDeleteDialog = true }) {
                                 Icon(Icons.Default.Delete, "Delete")
                             }
                         }
                     )
                 }
             ) { padding ->
+
+                if (showDeleteDialog) {
+                    AlertDialog(
+                        onDismissRequest = { showDeleteDialog = false },
+                        title = { Text("Delete Pet", style = TextStyle(
+                            fontFamily = PrimaryFontFamily,
+                            fontWeight = FontWeight.Normal,
+                            fontSize = 20.sp,
+                            color = Color.Black
+                        )) },
+                        text = { Text("Are you sure you want to delete ${pet.name}'s profile? This action cannot be undone.") },
+                        confirmButton = {
+                            TextButton(onClick = {
+                                showDeleteDialog = false
+                                petProfileViewModel.deletePet(pet.id) {
+                                    navController.popBackStack()
+                                }
+                            }) {
+                                Text("Delete", color = MaterialTheme.colorScheme.error)
+                            }
+                        },
+                        dismissButton = {
+                            TextButton(onClick = { showDeleteDialog = false }) {
+                                Text("Cancel")
+                            }
+                        }
+                    )
+                }
 
                 Column(
                     modifier = Modifier

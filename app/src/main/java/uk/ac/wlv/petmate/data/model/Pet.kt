@@ -6,6 +6,8 @@ data class Pet(
     var type: PetType? = null,
     val breed: String = "",
     val age: Int = 0,
+    val weight: Double = 0.0,
+    val gender: Gender = Gender.MALE,
     val isSpayedNeutered: Boolean = false,
     val medicalConditions: List<String> = emptyList(),
     val allergies: List<String> = emptyList(),
@@ -14,6 +16,10 @@ data class Pet(
 
 enum class PetType {
     CAT, DOG,BIRD,RABBIT,HAMSTER,FISH,REPTILE
+}
+
+enum class Gender {
+    MALE, FEMALE, UNKNOWN
 }
 
 data class MedicalCondition(

@@ -38,6 +38,7 @@ uiGeometry = "1.10.3"
 animationCore = "1.10.3"
 androidxFoundation = "1.10.4"
 uiTextVersion = "1.10.4"
+androidxFoundationLayout = "1.10.4"
 
 
 [libraries]
@@ -86,6 +87,7 @@ androidx-compose-ui-geometry = { group = "androidx.compose.ui", name = "ui-geome
 androidx-compose-animation-core = { group = "androidx.compose.animation", name = "animation-core", version.ref = "animationCore" }
 foundation = { group = "androidx.compose.foundation", name = "foundation", version.ref = "androidxFoundation" }
 androidx-ui-text = { group = "androidx.compose.ui", name = "ui-text", version.ref = "uiTextVersion" }
+foundation-layout = { group = "androidx.compose.foundation", name = "foundation-layout", version.ref = "androidxFoundationLayout" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

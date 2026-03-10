@@ -110,6 +110,7 @@ dependencies {
     implementation(libs.androidx.compose.animation.core)
     implementation(libs.foundation)
     implementation(libs.androidx.ui.text)
+    implementation(libs.foundation.layout)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))

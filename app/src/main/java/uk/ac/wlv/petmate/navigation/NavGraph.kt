@@ -16,6 +16,7 @@ import org.koin.compose.viewmodel.koinViewModel
 import uk.ac.wlv.petmate.screens.SignInScreen
 import uk.ac.wlv.petmate.screens.SplashScreen
 import uk.ac.wlv.petmate.screens.pet.PetDetailsScreen
+import uk.ac.wlv.petmate.screens.pet.PetEditScreen
 import uk.ac.wlv.petmate.screens.pet.PetProfileSetupScreen
 import uk.ac.wlv.petmate.viewmodel.PetProfileViewModel
 
@@ -119,6 +120,25 @@ fun NavGraph(
                     petId = petId,
                     petProfileViewModel = petProfileViewModel,
                     navController = navController,
+                )
+            }
+            composable(
+                route = "petEditScreen/{petId}",
+                arguments = listOf(
+                    navArgument("petId") { type = NavType.StringType }
+                )
+            ) { backStackEntry ->
+                val petId = backStackEntry.arguments?.getString("petId") ?: ""
+                val parentEntry = remember(backStackEntry) {
+                    navController.getBackStackEntry("authenticated")
+                }
+                val petProfileViewModel: PetProfileViewModel = koinViewModel(
+                    viewModelStoreOwner = parentEntry
+                )
+                PetEditScreen(
+                    petId = petId,
+                    viewModel = petProfileViewModel,
+                    navController = navController
                 )
             }
         }
