@@ -1,9 +1,7 @@
 package uk.ac.wlv.petmate.navigation
 
-import android.R.attr.type
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.navigation.NavArgument
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
