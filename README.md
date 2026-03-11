@@ -6,6 +6,13 @@ The application follows modern Android development practices including MVVM arch
 
 ---
 
+## 📸 Screenshots
+
+### Home Screen
+![Home Screen](https://drive.google.com/uc?export=view&id=19CcxU5okNIoHY8auA5HoKJQkSV-iwxII)
+
+---
+
 ## 📱 Features
 
 - Add and manage multiple pets
