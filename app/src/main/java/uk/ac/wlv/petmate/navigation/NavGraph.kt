@@ -1,6 +1,7 @@
 package uk.ac.wlv.petmate.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -10,16 +11,19 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
-import com.google.firebase.auth.FirebaseAuth
 import org.koin.compose.viewmodel.koinViewModel
+import uk.ac.wlv.petmate.core.UiState
 import uk.ac.wlv.petmate.screens.SignInScreen
 import uk.ac.wlv.petmate.screens.SplashScreen
+import uk.ac.wlv.petmate.screens.appointment.AppointmentSummaryScreen
 import uk.ac.wlv.petmate.screens.pet.PetDetailsScreen
 import uk.ac.wlv.petmate.screens.pet.PetEditScreen
 import uk.ac.wlv.petmate.screens.pet.PetProfileSetupScreen
 import uk.ac.wlv.petmate.screens.vet.NearbyVetsMapScreen
+import uk.ac.wlv.petmate.screens.appointment.SelectTimeSlotScreen
 import uk.ac.wlv.petmate.screens.vet.VetDetailsScreen
 import uk.ac.wlv.petmate.screens.vet.VetsListScreen
+import uk.ac.wlv.petmate.viewmodel.AppointmentViewModel
 import uk.ac.wlv.petmate.viewmodel.PetProfileViewModel
 import uk.ac.wlv.petmate.viewmodel.SessionViewModel
 import uk.ac.wlv.petmate.viewmodel.VetViewModel
@@ -163,11 +167,29 @@ fun NavGraph(
                 val vetViewModel: VetViewModel = koinViewModel(
                     viewModelStoreOwner = parentEntry
                 )
+                val appointmentViewModel: AppointmentViewModel = koinViewModel(
+                    viewModelStoreOwner = parentEntry
+                )
                 VetsListScreen(
                     navController = navController,
                     vetViewModel = vetViewModel,
+                    appointmentViewModel = appointmentViewModel,
+                    onBookAppointment = { vet->
+                        vetViewModel.loadVet(vet.id)
+                        navController.navigate(
+                            "selectTimeSlot/${vet.id}"
+                        )
+                        },
+                    onVetClick = {vet->
+                        navController.navigate(
+                            "vetDetailsScreen/${vet.id}"
+                        )
+                    }
+
 
                     )
+
+
             }
 
             composable(
@@ -201,10 +223,80 @@ fun NavGraph(
                 val vetViewModel: VetViewModel = koinViewModel(
                     viewModelStoreOwner = parentEntry
                 )
+                val appointmentViewModel: AppointmentViewModel = koinViewModel(
+                    viewModelStoreOwner = parentEntry
+                )
+                val petProfileViewModel: PetProfileViewModel = koinViewModel(
+                    viewModelStoreOwner = parentEntry
+                )
                 VetDetailsScreen(
                     vetId = vetId,
                     vetViewModel = vetViewModel,
                     navController = navController,
+                    appointmentViewModel = appointmentViewModel,
+                    petProfileViewModel =petProfileViewModel
+                )
+            }
+            composable(
+                route     = "selectTimeSlot/{vetId}/{selectedType}",
+                arguments = listOf(
+                    navArgument("vetId")        { type = NavType.IntType },
+                    navArgument("selectedType") { type = NavType.IntType }
+                )
+
+            ) { backStackEntry ->
+                val vetId = backStackEntry.arguments?.getInt("vetId") ?:0
+                val selectedType = backStackEntry.arguments?.getInt("selectedType") ?: 0
+                val parentEntry = remember(backStackEntry) {
+                    navController.getBackStackEntry("authenticated")
+                }
+                val vetViewModel: VetViewModel = koinViewModel(
+                    viewModelStoreOwner = parentEntry
+                )
+                val appointmentViewModel: AppointmentViewModel = koinViewModel(
+                    viewModelStoreOwner = parentEntry
+                )
+                val petProfileViewModel: PetProfileViewModel = koinViewModel(
+                    viewModelStoreOwner = parentEntry
+                )
+                LaunchedEffect(selectedType) {
+                    appointmentViewModel.selectType(selectedType)
+                }
+
+                SelectTimeSlotScreen(
+                        vetId = vetId,
+                        appointmentViewModel = appointmentViewModel,
+                        vetViewModel = vetViewModel,
+                        onBack               = { navController.popBackStack() },
+                        petProfileViewModel =petProfileViewModel,
+                        onBookAppointment    = {
+                            navController.navigate("appointmentSummary/${vetId}")
+                        }
+                    )
+
+            }
+
+            composable(
+                route     = "appointmentSummary/{vetId}",
+                arguments = listOf(
+                    navArgument("vetId") { type = NavType.IntType }
+                )
+            ) { backStackEntry ->
+                val vetId = backStackEntry.arguments?.getInt("vetId") ?: 0
+
+                val parentEntry = remember(backStackEntry) {
+                    navController.getBackStackEntry("authenticated")
+                }
+                val vetViewModel         : VetViewModel         = koinViewModel(viewModelStoreOwner = parentEntry)
+                val appointmentViewModel : AppointmentViewModel = koinViewModel(viewModelStoreOwner = parentEntry)
+
+                val vetState by vetViewModel.selectedVetState.collectAsState()
+                val vet = (vetState as? UiState.Success)?.data ?: return@composable
+
+                AppointmentSummaryScreen(
+                    vet                  = vet,
+                    appointmentViewModel = appointmentViewModel,
+                    onBack               = { navController.popBackStack() },
                 )
             }
         }

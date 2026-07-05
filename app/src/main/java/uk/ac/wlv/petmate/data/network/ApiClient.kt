@@ -6,7 +6,6 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import uk.ac.wlv.petmate.core.utils.Constants
-import uk.ac.wlv.petmate.core.utils.Constants.BASE_URL
 
 object ApiClient {
 
@@ -77,5 +76,9 @@ object ApiClient {
 
     val nominatimApi: NominatimService by lazy {
         nominatimRetrofit.create(NominatimService::class.java)
+    }
+
+    val appointmentApi: AppointmentApiService by lazy {
+        retrofit.create(AppointmentApiService::class.java)
     }
 }

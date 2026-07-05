@@ -67,9 +67,7 @@ fun AddPetItem(
                 tint = Color.White
             )
         }
-
         Spacer(modifier = Modifier.height(4.dp))
-
         Text(
             text = "Add",
             style = MaterialTheme.typography.labelSmall

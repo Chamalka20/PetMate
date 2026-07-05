@@ -48,6 +48,7 @@ import uk.ac.wlv.petmate.ui.theme.StarYellow
 fun VetCard(
     vet: Vet,
     onClick: () -> Unit = {},
+
     onBookAppointment: () -> Unit = {}
 ) {
     Card(

@@ -24,7 +24,6 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             PetMateTheme(dynamicColor = false ) {
-
                 Box(modifier = Modifier.fillMaxSize()) {
                     NavGraph()
                     CustomSnackbarHost()

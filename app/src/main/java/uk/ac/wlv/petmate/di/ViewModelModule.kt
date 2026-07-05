@@ -5,6 +5,7 @@ import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 import uk.ac.wlv.petmate.data.datasources.local.UserCache
 import uk.ac.wlv.petmate.data.datasources.local.UserCacheImpl
+import uk.ac.wlv.petmate.data.datasources.remote.AppointmentRemoteDataSource
 import uk.ac.wlv.petmate.data.datasources.remote.ImageDataSource
 import uk.ac.wlv.petmate.data.datasources.remote.PetRemoteDataSource
 import uk.ac.wlv.petmate.data.datasources.remote.UserDataSource
@@ -12,11 +13,13 @@ import uk.ac.wlv.petmate.data.datasources.remote.VetRemoteDataSource
 import uk.ac.wlv.petmate.data.network.ApiClient
 import uk.ac.wlv.petmate.data.network.InternetChecker
 import uk.ac.wlv.petmate.data.network.NominatimService
+import uk.ac.wlv.petmate.data.repository.AppointmentRepository
 import uk.ac.wlv.petmate.data.repository.AuthRepository
 import uk.ac.wlv.petmate.data.repository.ImageRepository
 import uk.ac.wlv.petmate.data.repository.LocationSearchRepository
 import uk.ac.wlv.petmate.data.repository.PetRepository
 import uk.ac.wlv.petmate.data.repository.VetRepository
+import uk.ac.wlv.petmate.data.repository.impl.AppointmentRepositoryImpl
 import uk.ac.wlv.petmate.data.repository.impl.AuthRepositoryImpl
 import uk.ac.wlv.petmate.data.repository.impl.ImageRepositoryImpl
 import uk.ac.wlv.petmate.data.repository.impl.LocationSearchRepositoryImpl
@@ -24,6 +27,7 @@ import uk.ac.wlv.petmate.data.repository.impl.PetRepositoryImpl
 import uk.ac.wlv.petmate.data.repository.impl.VetRepositoryImpl
 import uk.ac.wlv.petmate.services.GoogleAuthService
 import uk.ac.wlv.petmate.services.LocationService
+import uk.ac.wlv.petmate.viewmodel.AppointmentViewModel
 import uk.ac.wlv.petmate.viewmodel.AuthViewModel
 import uk.ac.wlv.petmate.viewmodel.BaseViewModel
 import uk.ac.wlv.petmate.viewmodel.PetProfileViewModel
@@ -96,6 +100,16 @@ get()
             get(),
 get(),
             get()
+        )
+    }
+    single { AppointmentRemoteDataSource(get()) }
+    single<AppointmentRepository> {
+        AppointmentRepositoryImpl(get())
+    }
+
+    viewModel {
+        AppointmentViewModel(
+          get()
         )
     }
 }
