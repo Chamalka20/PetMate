@@ -64,9 +64,11 @@ import uk.ac.wlv.petmate.core.UiState
 import uk.ac.wlv.petmate.data.model.Vet
 import uk.ac.wlv.petmate.viewmodel.VetViewModel
 import uk.ac.wlv.petmate.data.model.SortOption
+import uk.ac.wlv.petmate.screens.appointment.components.VisitTypeBottomSheet
 import uk.ac.wlv.petmate.screens.vet.Components.VetCard
 import uk.ac.wlv.petmate.screens.vet.Components.VetFilterBottomSheet
 import uk.ac.wlv.petmate.screens.vet.Components.VetSearchBar
+import uk.ac.wlv.petmate.viewmodel.AppointmentViewModel
 
 
 // ─── Main Screen ──────────────────────────────────────────────────────────────
@@ -78,6 +80,7 @@ fun VetsListScreen(
     onBookAppointment: (Vet) -> Unit = {},
     navController: NavHostController,
     vetViewModel: VetViewModel,
+    appointmentViewModel: AppointmentViewModel
 
 ) {
     val vetListState by vetViewModel.filteredVetListState.collectAsState()
@@ -91,6 +94,8 @@ fun VetsListScreen(
     val scope        = rememberCoroutineScope()
     var isRefreshing by remember { mutableStateOf(false) }
 
+    var vetToBook by remember { mutableStateOf<Vet?>(null) }
+
 // Show active filter count badge on Filter chip
     val activeFilterCount = remember(filterState) {
         var count = 0
@@ -100,6 +105,18 @@ fun VetsListScreen(
         if (filterState.maxWaitingTime < 60) count++
         if (filterState.sortBy != SortOption.NONE) count++
         count
+    }
+
+    if (vetToBook != null) {
+        VisitTypeBottomSheet(
+            vet            = vetToBook!!,
+            onTypeSelected = { type ->
+                appointmentViewModel.selectType(type)
+                navController.navigate("selectTimeSlot/${vetToBook!!.id}/$type")
+                vetToBook = null
+            },
+            onDismiss = { vetToBook = null }
+        )
     }
 
 
@@ -247,7 +264,8 @@ fun VetsListScreen(
                                 VetCard(
                                     vet = vet,
                                     onClick = { onVetClick(vet) },
-                                    onBookAppointment = { onBookAppointment(vet) }
+                                  onBookAppointment = { vetToBook = vet }
+
                                 )
                             }
 
