@@ -5,9 +5,11 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import uk.ac.wlv.petmate.core.SnackbarController
 import uk.ac.wlv.petmate.core.UiState
 import uk.ac.wlv.petmate.core.utils.safeApiCall
 import uk.ac.wlv.petmate.data.model.Appointment
+import uk.ac.wlv.petmate.data.model.AppointmentActionResponse
 import uk.ac.wlv.petmate.data.model.AvailableSlotsDto
 import uk.ac.wlv.petmate.data.model.BookAppointmentRequest
 import uk.ac.wlv.petmate.data.model.CancelAppointmentRequest
@@ -34,8 +36,14 @@ class AppointmentViewModel(
     val upcomingState: StateFlow<UiState<List<Appointment>>> = _upcomingState
 
     // ── Appointment history ───────────────────────────────────────────
+    private val _historyList = mutableListOf<Appointment>()
     private val _historyState = MutableStateFlow<UiState<List<Appointment>>>(UiState.Idle)
     val historyState: StateFlow<UiState<List<Appointment>>> = _historyState
+
+    private val _isLoadingMoreHistory = MutableStateFlow(false)
+    val isLoadingMoreHistory: StateFlow<Boolean> = _isLoadingMoreHistory
+    val historyIsLastPage get() = repository.historyIsLastPage
+
 
     // ── Single appointment ────────────────────────────────────────────
     private val _appointmentState = MutableStateFlow<UiState<Appointment>>(UiState.Idle)
@@ -153,24 +161,39 @@ class AppointmentViewModel(
     // ─────────────────────────────────────────────────────────────────
     // Load Appointment History
     // ─────────────────────────────────────────────────────────────────
-    fun loadAppointmentHistory() {
+    fun loadAppointmentHistory(isRefresh: Boolean = false) {
         viewModelScope.launch {
+            if (isRefresh) _historyList.clear()
             _historyState.value = UiState.Loading
+
             val result = safeApiCall {
-                repository.getAppointmentHistory()
+                repository.getAppointmentHistory(isRefresh)
             }
+            result.onSuccess { appointments ->
+                _historyList.addAll(appointments)
+                _historyState.value = UiState.Success(_historyList.toList())
+            }.onFailure { exception ->
+                _myAppointmentsState.value =
+                    UiState.Error(exception.message ?: "Failed to load  Appointments History")
+            }
+        }
+    }
 
-            result
-                .onSuccess { appointments ->
-
-                    _historyState.value = UiState.Success(appointments)
-                }
-                .onFailure { exception ->
-
-                    _myAppointmentsState.value =
-                        UiState.Error(exception.message ?: "Failed to load  Appointments History")
-                }
-
+    fun loadMoreHistory() {
+        if (historyIsLastPage || _isLoadingMoreHistory.value) return
+        viewModelScope.launch {
+            _isLoadingMoreHistory.value = true
+            val result = safeApiCall {
+                repository.getAppointmentHistory(isRefresh = false)
+            }
+            result.onSuccess { appointments ->
+                _historyList.addAll(appointments)
+                _historyState.value = UiState.Success(_historyList.toList())
+            }.onFailure { exception ->
+                _myAppointmentsState.value =
+                    UiState.Error(exception.message ?: "Failed to load  Appointments History")
+            }
+            _isLoadingMoreHistory.value = false
         }
     }
 
@@ -212,27 +235,29 @@ class AppointmentViewModel(
     // ─────────────────────────────────────────────────────────────────
     // Cancel Appointment
     // ─────────────────────────────────────────────────────────────────
-    fun cancelAppointment(id: Int, reason: String) {
+    fun cancelAppointment(id: Int, reason: String,cancelledBy: String) {
         viewModelScope.launch {
             _cancelState.value = UiState.Loading
             val result = safeApiCall {
                 repository.cancelAppointment(
                     id = id,
-                    request = CancelAppointmentRequest(reason = reason)
+                    request = CancelAppointmentRequest(reason = reason, cancelledBy =cancelledBy )
                 )
             }
 
             result
-                .onSuccess { result ->
+                .onSuccess {  response->
 
-                    _cancelState.value = UiState.Success(result)
-
+                    _cancelState.value = UiState.Success(response.success)
+                    SnackbarController.showSuccess(
+                        response.message
+                    )
                     // ── Refresh lists after cancel ────────────────────────
                     loadUpcomingAppointments()
                     loadMyAppointments()
                 }
                 .onFailure { exception ->
-
+                    SnackbarController.showError(exception.message ?: "Failed to cancel Appointment")
                     _myAppointmentsState.value =
                         UiState.Error(exception.message ?: "Failed to cancel Appointment")
                 }

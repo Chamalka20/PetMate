@@ -63,7 +63,8 @@ data class BookAppointmentRequest(
 )
 
 data class CancelAppointmentRequest(
-    val reason: String
+    val reason: String,
+    val cancelledBy: String
 )
 
 data class UpdatePaymentRequest(
@@ -83,4 +84,16 @@ data class AvailableSlotsDto(
 data class TimeSlotDto(
     val slot       : String,
     val isAvailable: Boolean
+)
+
+data class AppointmentActionResponse(
+    val success: Boolean,
+    val message: String
+)
+
+data class AppointmentListResponse(
+    val total: Int,
+    val page: Int,
+    val pageSize: Int,
+    val data: List<Appointment>
 )
