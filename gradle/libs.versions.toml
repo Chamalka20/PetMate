@@ -48,6 +48,8 @@ remoteCreationCore = "1.0.0-alpha07"
 androidxComposeFoundationFoundation = "1.10.6"
 workRuntimeKtx = "2.11.2"
 googleid = "1.2.0"
+androidxComposeFoundationFoundationLayout = "1.11.4"
+androidxComposeFoundationFoundation2 = "1.11.4"
 
 
 [libraries]
@@ -106,6 +108,8 @@ androidx-compose-remote-creation-core = { group = "androidx.compose.remote", nam
 androidx-compose-foundation-foundation2 = { group = "androidx.compose.foundation", name = "foundation", version.ref = "androidxComposeFoundationFoundation" }
 androidx-work-runtime-ktx = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "workRuntimeKtx" }
 googleid = { group = "com.google.android.libraries.identity.googleid", name = "googleid", version.ref = "googleid" }
+androidx-compose-foundation-foundation-layout2 = { group = "androidx.compose.foundation", name = "foundation-layout", version.ref = "androidxComposeFoundationFoundationLayout" }
+androidx-compose-foundation-foundation3 = { group = "androidx.compose.foundation", name = "foundation", version.ref = "androidxComposeFoundationFoundation2" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

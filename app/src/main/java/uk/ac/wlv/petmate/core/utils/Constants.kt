@@ -3,10 +3,10 @@ package uk.ac.wlv.petmate.core.utils
 object Constants {
 
     // ── Environment ───────────────────────────────────────
-    const val IS_PRODUCTION = true
+    const val IS_PRODUCTION = false
 
     // ── API URLs ──────────────────────────────────────────
-    const val LOCAL_URL      = "http://10.0.2.2:7045/"
+    const val LOCAL_URL      = "http://192.168.1.192:8080/"
     const val PRODUCTION_URL = "https://petmateapi-production-90c8.up.railway.app/"
 
     // ── Active URL ────────────────────────────────────────

@@ -1,5 +1,6 @@
 package uk.ac.wlv.petmate.navigation
 
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -21,6 +22,7 @@ import uk.ac.wlv.petmate.screens.pet.PetEditScreen
 import uk.ac.wlv.petmate.screens.pet.PetProfileSetupScreen
 import uk.ac.wlv.petmate.screens.vet.NearbyVetsMapScreen
 import uk.ac.wlv.petmate.screens.appointment.SelectTimeSlotScreen
+import uk.ac.wlv.petmate.screens.vet.AppointmentConfirmationScreen
 import uk.ac.wlv.petmate.screens.vet.VetDetailsScreen
 import uk.ac.wlv.petmate.screens.vet.VetsListScreen
 import uk.ac.wlv.petmate.viewmodel.AppointmentViewModel
@@ -71,7 +73,14 @@ fun NavGraph(
             startDestination = "main",
             route = "authenticated"
         ) {
-            composable("main") { backStackEntry ->
+
+            composable( route = "main?tab={tab}",
+                arguments = listOf(
+                    navArgument("tab") {
+                        type = NavType.StringType
+                        defaultValue = "home"
+                    }
+                )) { backStackEntry ->
                 val parentEntry = remember(backStackEntry) {
                     navController.getBackStackEntry("authenticated")
                 }
@@ -79,13 +88,19 @@ fun NavGraph(
                 val petProfileViewModel: PetProfileViewModel = koinViewModel(
                     viewModelStoreOwner = parentEntry
                 )
+                val appointmentViewModel: AppointmentViewModel = koinViewModel(
+                    viewModelStoreOwner = parentEntry
+                )
                 val vetViewModel: VetViewModel = koinViewModel(
                     viewModelStoreOwner = parentEntry
                 )
+                val tab = backStackEntry.arguments?.getString("tab") ?: "home"
                 MainScreen(
+                    tab = tab,
                     rootNavController = navController,
                     petProfileViewModel = petProfileViewModel,
-                    vetViewModel = vetViewModel
+                    vetViewModel = vetViewModel,
+                    appointmentViewModel= appointmentViewModel
                 )
             }
 
@@ -297,6 +312,44 @@ fun NavGraph(
                     vet                  = vet,
                     appointmentViewModel = appointmentViewModel,
                     onBack               = { navController.popBackStack() },
+                    rootNavController = navController
+                )
+            }
+
+            composable("appointmentConfirmation") { backStackEntry ->
+                val parentEntry = remember(backStackEntry) {
+                    navController.getBackStackEntry("authenticated")
+                }
+                val appointmentViewModel: AppointmentViewModel = koinViewModel(
+                    viewModelStoreOwner = parentEntry
+                )
+
+                val bookState   by appointmentViewModel.bookState.collectAsState()
+                val appointment = (bookState as? UiState.Success)?.data
+                    ?: return@composable
+
+                AppointmentConfirmationScreen(
+                    appointment = appointment,
+                    onViewMyAppointments = {
+                        try {
+                            Log.d("AppointmentDebug", "View My Appointments clicked")
+
+                            navController.navigate("main?tab=medlog") {
+                                popUpTo("authenticated")
+                            }
+                            Log.d("AppointmentDebug", "Navigation successful")
+
+                            appointmentViewModel.resetBookState()
+
+                            Log.d("AppointmentDebug", "Book state reset")
+                        } catch (e: Exception) {
+                            Log.e(
+                                "AppointmentDebug",
+                                "Error while navigating or resetting state",
+                                e
+                            )
+                        }
+                    }
                 )
             }
         }
