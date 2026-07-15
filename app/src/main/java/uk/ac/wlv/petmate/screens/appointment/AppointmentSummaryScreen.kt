@@ -56,6 +56,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import uk.ac.wlv.petmate.components.NetworkCircleImage
 import uk.ac.wlv.petmate.core.SnackbarController
 import uk.ac.wlv.petmate.core.SnackbarDuration
@@ -71,6 +72,7 @@ fun AppointmentSummaryScreen(
     vet                  : Vet,
     appointmentViewModel : AppointmentViewModel,
     onBack               : () -> Unit,
+    rootNavController:NavController
 ) {
     val selectedSlot  by appointmentViewModel.selectedSlot.collectAsState()
     val selectedType  by appointmentViewModel.selectedType.collectAsState()
@@ -101,6 +103,14 @@ fun AppointmentSummaryScreen(
                 )
             }
             else -> Unit
+        }
+    }
+
+    LaunchedEffect(bookState) {
+        if (bookState is UiState.Success) {
+            rootNavController.navigate("appointmentConfirmation") {
+                popUpTo("appointmentSummary") { inclusive = true }
+            }
         }
     }
 

@@ -2,6 +2,7 @@ package uk.ac.wlv.petmate.data.repository.impl
 
 import uk.ac.wlv.petmate.data.datasources.remote.AppointmentRemoteDataSource
 import uk.ac.wlv.petmate.data.model.Appointment
+import uk.ac.wlv.petmate.data.model.AppointmentActionResponse
 import uk.ac.wlv.petmate.data.model.AvailableSlotsDto
 import uk.ac.wlv.petmate.data.model.BookAppointmentRequest
 import uk.ac.wlv.petmate.data.model.CancelAppointmentRequest
@@ -11,7 +12,8 @@ import uk.ac.wlv.petmate.data.repository.AppointmentRepository
 class AppointmentRepositoryImpl(
     private val dataSource: AppointmentRemoteDataSource
 ) : AppointmentRepository {
-
+    override val historyIsLastPage: Boolean
+        get() = dataSource.historyIsLastPage
     // ── Book appointment ──────────────────────────────────────────────
     override suspend fun bookAppointment(
         request: BookAppointmentRequest
@@ -30,8 +32,8 @@ class AppointmentRepositoryImpl(
     }
 
     // ── Get appointment history ───────────────────────────────────────
-    override suspend fun getAppointmentHistory(): List<Appointment> {
-        return dataSource.getAppointmentHistory()
+    override suspend fun getAppointmentHistory( isRefresh   : Boolean ,): List<Appointment> {
+        return dataSource.getAppointmentHistory(isRefresh)
     }
 
     // ── Get single appointment ────────────────────────────────────────
@@ -43,7 +45,7 @@ class AppointmentRepositoryImpl(
     override suspend fun cancelAppointment(
         id     : Int,
         request: CancelAppointmentRequest
-    ): Boolean {
+    ): AppointmentActionResponse {
         return dataSource.cancelAppointment(id, request)
     }
 

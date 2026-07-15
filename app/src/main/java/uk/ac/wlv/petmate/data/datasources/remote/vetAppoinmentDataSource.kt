@@ -1,12 +1,15 @@
 package uk.ac.wlv.petmate.data.datasources.remote
 import android.util.Log
+import uk.ac.wlv.petmate.core.utils.Constants.PAGE_SIZE
 import uk.ac.wlv.petmate.data.datasources.local.UserCache
 import uk.ac.wlv.petmate.data.model.Appointment
+import uk.ac.wlv.petmate.data.model.AppointmentActionResponse
 import uk.ac.wlv.petmate.data.model.AvailableSlotsDto
 import uk.ac.wlv.petmate.data.model.BookAppointmentRequest
 import uk.ac.wlv.petmate.data.model.CancelAppointmentRequest
 import uk.ac.wlv.petmate.data.model.UpdatePaymentRequest
 import uk.ac.wlv.petmate.data.network.ApiClient
+import kotlin.math.ceil
 
 
 class AppointmentRemoteDataSource(
@@ -14,6 +17,11 @@ class AppointmentRemoteDataSource(
 ) {
     private suspend fun bearerToken() =
         "Bearer ${userCache.getToken()}"
+
+    private var historyCurrentPage = 1
+    var historyIsLastPage          = false
+        private set
+
     // ── Book appointment ──────────────────────────────────────────────
     suspend fun bookAppointment(
         request: BookAppointmentRequest
@@ -53,12 +61,25 @@ class AppointmentRemoteDataSource(
     }
 
     // ── Get appointment history ───────────────────────────────────────
-    suspend fun getAppointmentHistory(): List<Appointment> {
-        val response = ApiClient.appointmentApi.getAppointmentHistory(token = bearerToken())
-        if (response.isSuccessful) {
-            return response.body() ?: emptyList()
+    suspend fun getAppointmentHistory(  isRefresh: Boolean = false): List<Appointment> {
+        if (isRefresh) {
+            historyCurrentPage = 1
+            historyIsLastPage  = false
         }
-        throw Exception("Failed to get history: ${response.errorBody()?.string()}")
+
+        if (historyIsLastPage) return emptyList()
+
+        val response = ApiClient.appointmentApi.getAppointmentHistory(
+            token    = bearerToken(),
+            page     = historyCurrentPage,
+            pageSize = PAGE_SIZE
+        )
+
+        val totalPages = ceil(response.total.toDouble() / PAGE_SIZE).toInt()
+        historyIsLastPage = historyCurrentPage >= totalPages
+        if (!historyIsLastPage) historyCurrentPage++
+        return response.data
+
     }
 
     // ── Get single appointment ────────────────────────────────────────
@@ -75,9 +96,9 @@ class AppointmentRemoteDataSource(
     suspend fun cancelAppointment(
         id     : Int,
         request: CancelAppointmentRequest
-    ): Boolean {
+    ): AppointmentActionResponse {
         val response = ApiClient.appointmentApi.cancelAppointment(token = bearerToken(),id, request)
-        return response.isSuccessful
+        return response.body()?: throw Exception("Empty response")
     }
 
     // ── Confirm appointment ───────────────────────────────────────────

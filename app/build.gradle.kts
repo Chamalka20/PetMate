@@ -161,6 +161,8 @@ dependencies {
     implementation(libs.koin.compose)
     implementation(libs.koin.androidx.compose.v411)
     implementation(libs.googleid)
+    implementation(libs.androidx.compose.foundation.foundation.layout2)
+    implementation(libs.androidx.compose.foundation.foundation3)
 
     // ================= UI TOOLING =================
     debugImplementation(libs.androidx.compose.ui.tooling)

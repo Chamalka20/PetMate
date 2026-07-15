@@ -3,6 +3,8 @@ package uk.ac.wlv.petmate.data.network
 import retrofit2.Response
 import retrofit2.http.*
 import uk.ac.wlv.petmate.data.model.Appointment
+import uk.ac.wlv.petmate.data.model.AppointmentActionResponse
+import uk.ac.wlv.petmate.data.model.AppointmentListResponse
 import uk.ac.wlv.petmate.data.model.AvailableSlotsDto
 import uk.ac.wlv.petmate.data.model.BookAppointmentRequest
 import uk.ac.wlv.petmate.data.model.CancelAppointmentRequest
@@ -12,7 +14,7 @@ interface AppointmentApiService {
 
     // ── Book appointment ──────────────────────────────────────────────
     // POST /api/appointments
-    @POST("api/appointments")
+    @POST("api/appointments/book")
     suspend fun bookAppointment(
         @Header("Authorization") token: String,
         @Body request: BookAppointmentRequest
@@ -31,7 +33,8 @@ interface AppointmentApiService {
     // ── Get appointment history ───────────────────────────────────────
     // GET /api/appointments/my/history
     @GET("api/appointments/my/history")
-    suspend fun getAppointmentHistory(@Header("Authorization") token: String,): Response<List<Appointment>>
+    suspend fun getAppointmentHistory(@Header("Authorization") token: String, @Query("page")   page   : Int ,
+                                      @Query("pageSize")       pageSize: Int ,): AppointmentListResponse
 
     // ── Get single appointment ────────────────────────────────────────
     // GET /api/appointments/{id}
@@ -48,7 +51,7 @@ interface AppointmentApiService {
         @Header("Authorization") token: String,
         @Path("id") id     : Int,
         @Body      request : CancelAppointmentRequest
-    ): Response<String>
+    ): Response<AppointmentActionResponse>
 
     // ── Confirm appointment ───────────────────────────────────────────
     // PATCH /api/appointments/{id}/confirm
