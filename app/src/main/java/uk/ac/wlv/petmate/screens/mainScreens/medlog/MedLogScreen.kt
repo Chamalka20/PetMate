@@ -99,7 +99,7 @@ fun MedLogScreen(
 
     LaunchedEffect(Unit) {
         appointmentViewModel.loadUpcomingAppointments()
-        appointmentViewModel.loadAppointmentHistory()
+        appointmentViewModel.loadAppointmentHistory(isRefresh = true)
     }
 
     LaunchedEffect(cancelState) {

@@ -108,31 +108,6 @@ class AppointmentViewModel(
         }
     }
 
-    // ─────────────────────────────────────────────────────────────────
-    // Load My Appointments
-    // ─────────────────────────────────────────────────────────────────
-    fun loadMyAppointments() {
-        viewModelScope.launch {
-            _myAppointmentsState.value = UiState.Loading
-
-            val result = safeApiCall {
-                repository.getMyAppointments()
-            }
-
-            result
-                .onSuccess { appointments ->
-
-
-                    _myAppointmentsState.value = UiState.Success(appointments)
-                }
-                .onFailure { exception ->
-
-                    _myAppointmentsState.value =
-                        UiState.Error(exception.message ?: "Failed to load bookAppointments")
-                }
-
-        }
-    }
 
     // ─────────────────────────────────────────────────────────────────
     // Load Upcoming Appointments
@@ -254,7 +229,7 @@ class AppointmentViewModel(
                     )
                     // ── Refresh lists after cancel ────────────────────────
                     loadUpcomingAppointments()
-                    loadMyAppointments()
+                    loadAppointmentHistory(isRefresh = true)
                 }
                 .onFailure { exception ->
                     SnackbarController.showError(exception.message ?: "Failed to cancel Appointment")
