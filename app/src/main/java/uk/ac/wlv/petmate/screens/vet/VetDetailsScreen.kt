@@ -42,6 +42,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -103,6 +104,8 @@ fun VetDetailsScreen(vetId:Int,
     val homeAddress by appointmentViewModel.homeAddress.collectAsState()
     val homeLat     by appointmentViewModel.homeLatitude.collectAsState()
     val homeLon     by appointmentViewModel.homeLongitude.collectAsState()
+
+    var selectedDayIndex by remember { mutableIntStateOf(0) }
 
     DisposableEffect(Unit) {
         onDispose {
@@ -262,6 +265,9 @@ fun VetDetailsScreen(vetId:Int,
                                     days = generateAppointmentDays(count = 2, availableSlots =slotsState.data.slots ),
                                     selectedType   = selectedType,
                                     selectedSlot   = selectedSlot,
+                                    selectedDayIndex     = selectedDayIndex,
+                                    onDaySelected        = { selectedDayIndex = it },
+                                    vetId = vetId,
                                     onTypeSelected = { appointmentViewModel.selectType(it)
                                         appointmentViewModel.resetBookState(isChangeType = false, clearSelectDate = true)},
                                     onSlotSelected = { appointmentViewModel.selectSlot(it)
