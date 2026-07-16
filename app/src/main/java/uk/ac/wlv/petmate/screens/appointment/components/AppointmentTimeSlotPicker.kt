@@ -50,15 +50,16 @@ fun AppointmentTimeSlotPicker(
     appointmentViewModel: AppointmentViewModel,
     days: List<AppointmentDay>,
     selectedType   : Int,
+    vetId: Int,
+    selectedDayIndex     : Int,
+    onDaySelected        : (Int) -> Unit,
     selectedSlot     : String?,
     onTypeSelected : (Int) -> Unit,
     onSlotSelected : (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    // Which day tab is active
-    var selectedDayIndex by remember { mutableIntStateOf(0) }
-    // Which time slot is selected (null = none)
 
+    // Which time slot is selected (null = none)
     LaunchedEffect(days) {
         if (days.isNotEmpty()) {
             appointmentViewModel.selectDate(days[0].date.toString())
@@ -103,14 +104,18 @@ fun AppointmentTimeSlotPicker(
                     label      = day.label,
                     isSelected = index == selectedDayIndex,
                     onClick    = {
-                        selectedDayIndex = index
+                        onDaySelected(index)
                         // ← reset slot when day changes
                         onSlotSelected("")
                         appointmentViewModel.resetBookState(isChangeType = false)
 
                         // ← store selected date in ViewModel
                         appointmentViewModel.selectDate(day.date.toString())
-
+                        // get available slots
+                        appointmentViewModel.loadAvailableSlots(
+                            vetId = vetId,
+                            date = days[index].date
+                        )
 
 
                     }
