@@ -61,7 +61,8 @@ class AppointmentRemoteDataSource(
     }
 
     // ── Get appointment history ───────────────────────────────────────
-    suspend fun getAppointmentHistory(  isRefresh: Boolean = false): List<Appointment> {
+    suspend fun getAppointmentHistory(  isRefresh: Boolean = false ,vetName: String? = null,
+                                        appointmentDate: String? = null): List<Appointment> {
         if (isRefresh) {
             historyCurrentPage = 1
             historyIsLastPage  = false
@@ -72,7 +73,9 @@ class AppointmentRemoteDataSource(
         val response = ApiClient.appointmentApi.getAppointmentHistory(
             token    = bearerToken(),
             page     = historyCurrentPage,
-            pageSize = PAGE_SIZE
+            pageSize = PAGE_SIZE,
+            vetName = vetName,
+            appointmentDate = appointmentDate
         )
 
         val totalPages = ceil(response.total.toDouble() / PAGE_SIZE).toInt()

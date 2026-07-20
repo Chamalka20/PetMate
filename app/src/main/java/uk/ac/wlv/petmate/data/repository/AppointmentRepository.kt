@@ -16,7 +16,8 @@ interface AppointmentRepository {
 
     suspend fun getUpcomingAppointments(): List<Appointment>
 
-    suspend fun getAppointmentHistory( isRefresh : Boolean  = false,): List<Appointment>
+    suspend fun getAppointmentHistory( isRefresh : Boolean  = false,vetName: String? = null,
+                                       appointmentDate: String? = null): List<Appointment>
 
     suspend fun getAppointment(id: Int): Appointment
 

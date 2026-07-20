@@ -32,8 +32,9 @@ class AppointmentRepositoryImpl(
     }
 
     // ── Get appointment history ───────────────────────────────────────
-    override suspend fun getAppointmentHistory( isRefresh   : Boolean ,): List<Appointment> {
-        return dataSource.getAppointmentHistory(isRefresh)
+    override suspend fun getAppointmentHistory( isRefresh   : Boolean ,vetName: String? ,
+                                                appointmentDate: String?,): List<Appointment> {
+        return dataSource.getAppointmentHistory(isRefresh,vetName, appointmentDate)
     }
 
     // ── Get single appointment ────────────────────────────────────────
