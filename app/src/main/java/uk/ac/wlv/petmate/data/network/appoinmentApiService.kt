@@ -33,8 +33,13 @@ interface AppointmentApiService {
     // ── Get appointment history ───────────────────────────────────────
     // GET /api/appointments/my/history
     @GET("api/appointments/my/history")
-    suspend fun getAppointmentHistory(@Header("Authorization") token: String, @Query("page")   page   : Int ,
-                                      @Query("pageSize")       pageSize: Int ,): AppointmentListResponse
+    suspend fun getAppointmentHistory(
+        @Header("Authorization") token: String,
+        @Query("page") page: Int,
+        @Query("pageSize") pageSize: Int,
+        @Query("vetName") vetName: String? = null,
+        @Query("appointmentDate") appointmentDate: String? = null
+    ): AppointmentListResponse
 
     // ── Get single appointment ────────────────────────────────────────
     // GET /api/appointments/{id}

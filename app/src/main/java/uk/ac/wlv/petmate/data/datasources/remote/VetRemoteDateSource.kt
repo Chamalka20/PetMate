@@ -31,7 +31,7 @@ class VetRemoteDataSource(
         filter      : VetFilterState = VetFilterState(),
         searchQuery : String         = ""
     ): List<Vet> {
-
+        try {
         Log.d(TAG, "getVetsList called")
         Log.d(TAG, "isRefresh=$isRefresh | currentPage(before)=$currentPage | isLastPage=$isLastPage")
 
@@ -84,6 +84,17 @@ class VetRemoteDataSource(
         }
 
         return response.data
+
+        } catch (e: Exception) {
+
+            Log.e(
+                "VetRepository",
+                "getVets() failed: ${e.message}",
+                e
+            )
+
+            throw e
+        }
     }
 
     suspend fun getVet(vetId: Int): Vet {

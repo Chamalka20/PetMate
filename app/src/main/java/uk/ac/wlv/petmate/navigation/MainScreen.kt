@@ -43,6 +43,7 @@ fun MainScreen(  tab: String?,rootNavController: NavController,petProfileViewMod
             composable("medlog") {
                 MedLogScreen(
                     appointmentViewModel = appointmentViewModel,
+                    rootNavController = rootNavController
                 )
             }
             composable("emergency") { EmergencyScreen() }
