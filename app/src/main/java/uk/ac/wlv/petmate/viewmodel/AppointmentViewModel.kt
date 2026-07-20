@@ -2,8 +2,12 @@ package uk.ac.wlv.petmate.viewmodel
 
 import android.R
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import uk.ac.wlv.petmate.core.SnackbarController
 import uk.ac.wlv.petmate.core.UiState
@@ -19,6 +23,7 @@ import uk.ac.wlv.petmate.data.repository.AppointmentRepository
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
+@OptIn(FlowPreview::class)
 class AppointmentViewModel(
     private val repository: AppointmentRepository
 ) :  BaseViewModel() {
@@ -44,6 +49,11 @@ class AppointmentViewModel(
     val isLoadingMoreHistory: StateFlow<Boolean> = _isLoadingMoreHistory
     val historyIsLastPage get() = repository.historyIsLastPage
 
+    private val _historySearchQuery = MutableStateFlow("")
+    val historySearchQuery: StateFlow<String> = _historySearchQuery
+
+    private val _historySelectedDate = MutableStateFlow<String?>(null)
+    val historySelectedDate: StateFlow<String?> = _historySelectedDate
 
     // ── Single appointment ────────────────────────────────────────────
     private val _appointmentState = MutableStateFlow<UiState<Appointment>>(UiState.Idle)
@@ -81,6 +91,19 @@ class AppointmentViewModel(
 
     private val _selectedPet = MutableStateFlow<Pet?>(null)
     val selectedPet: StateFlow<Pet?> = _selectedPet
+
+    init {
+        viewModelScope.launch {
+            _historySearchQuery
+                .debounce(500)
+                .distinctUntilChanged()
+                .collect { query ->
+                    loadAppointmentHistory(
+                        isRefresh = true
+                    )
+                }
+        }
+    }
 
     // ─────────────────────────────────────────────────────────────────
     // Book Appointment
@@ -136,13 +159,19 @@ class AppointmentViewModel(
     // ─────────────────────────────────────────────────────────────────
     // Load Appointment History
     // ─────────────────────────────────────────────────────────────────
-    fun loadAppointmentHistory(isRefresh: Boolean = false) {
+    fun loadAppointmentHistory(isRefresh: Boolean = false ,vetName: String? = null,
+                               appointmentDate: String? = null) {
         viewModelScope.launch {
-            if (isRefresh) _historyList.clear()
+            if (isRefresh) {
+                _historyList.clear()
+
+            }
             _historyState.value = UiState.Loading
 
             val result = safeApiCall {
-                repository.getAppointmentHistory(isRefresh)
+                repository.getAppointmentHistory( isRefresh = isRefresh,
+                    vetName = _historySearchQuery.value.ifBlank { null },
+                    appointmentDate = _historySelectedDate.value)
             }
             result.onSuccess { appointments ->
                 _historyList.addAll(appointments)
@@ -159,7 +188,8 @@ class AppointmentViewModel(
         viewModelScope.launch {
             _isLoadingMoreHistory.value = true
             val result = safeApiCall {
-                repository.getAppointmentHistory(isRefresh = false)
+                repository.getAppointmentHistory(isRefresh = false,  vetName = _historySearchQuery.value.ifBlank { null },
+                    appointmentDate = _historySelectedDate.value)
             }
             result.onSuccess { appointments ->
                 _historyList.addAll(appointments)
@@ -170,6 +200,24 @@ class AppointmentViewModel(
             }
             _isLoadingMoreHistory.value = false
         }
+    }
+
+    fun updateHistorySearchQuery(query: String) {
+        _historySearchQuery.value = query
+    }
+
+    fun updateHistorySelectedDate(date: String?) {
+
+        _historySelectedDate.value = date
+
+        loadAppointmentHistory(
+            isRefresh = true
+        )
+    }
+
+    fun clearHistoryFilters() {
+        _historySearchQuery.value   = ""
+        _historySelectedDate.value  = null
     }
 
     // ─────────────────────────────────────────────────────────────────

@@ -21,6 +21,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Emergency
 import androidx.compose.material.icons.filled.Home
@@ -49,6 +50,7 @@ import androidx.compose.material3.TabRow
 import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -68,6 +70,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import uk.ac.wlv.petmate.components.ErrorRow
 import uk.ac.wlv.petmate.components.NetworkCircleImage
 import uk.ac.wlv.petmate.components.shimmers.shimmerBrush
@@ -77,6 +80,8 @@ import uk.ac.wlv.petmate.data.model.Appointment
 import uk.ac.wlv.petmate.data.model.AppointmentStatus
 import uk.ac.wlv.petmate.data.model.CancelledBy
 import uk.ac.wlv.petmate.screens.appointment.components.AppointmentDetailsBottomSheet
+import uk.ac.wlv.petmate.screens.mainScreens.medlog.Components.AppointmentGridCard
+import uk.ac.wlv.petmate.screens.mainScreens.medlog.Components.AppointmentGridShimmer
 import uk.ac.wlv.petmate.ui.theme.StarYellow
 import uk.ac.wlv.petmate.viewmodel.AppointmentViewModel
 
@@ -85,12 +90,12 @@ import uk.ac.wlv.petmate.viewmodel.AppointmentViewModel
 @Composable
 fun MedLogScreen(
     appointmentViewModel: AppointmentViewModel,
+    rootNavController:NavController
 ) {
     val upcomingState by appointmentViewModel.upcomingState.collectAsState()
     val historyState  by appointmentViewModel.historyState.collectAsState()
     val cancelState by appointmentViewModel.cancelState.collectAsState()
     val isLoadingMoreHistory by appointmentViewModel.isLoadingMoreHistory.collectAsState()
-    val historyListState     = rememberLazyListState()
 
     // ── Tab state ─────────────────────────────────────────────────────
     var selectedTab by remember { mutableIntStateOf(0) }
@@ -115,21 +120,8 @@ fun MedLogScreen(
         }
     }
 
-    // ── Pagination trigger ────────────────────────────────────────────────
-    val shouldLoadMore by remember {
-        derivedStateOf {
-            val lastVisible = historyListState.layoutInfo.visibleItemsInfo.lastOrNull()
-            val totalItems  = historyListState.layoutInfo.totalItemsCount
-            totalItems > 3 &&
-                    lastVisible != null &&
-                    lastVisible.index >= totalItems - 3
-        }
-    }
-    LaunchedEffect(shouldLoadMore) {
-        if (shouldLoadMore && !isLoadingMoreHistory) {
-            appointmentViewModel.loadMoreHistory()
-        }
-    }
+
+
 
     selectedAppointment?.let { appointment ->
         AppointmentDetailsBottomSheet(
@@ -211,7 +203,8 @@ fun MedLogScreen(
                     onRescheduleClick = {},
                     onRetryUpcoming   = { appointmentViewModel.loadUpcomingAppointments() },
                     onRetryHistory    = { appointmentViewModel.loadAppointmentHistory() },
-                    isLoadingMoreHistory = isLoadingMoreHistory
+                    isLoadingMoreHistory = isLoadingMoreHistory,
+                    rootNavController = rootNavController
                 )
                 1 -> ComingSoonTab(label = "Prescriptions")
                 2 -> ComingSoonTab(label = "Lab Results")
@@ -230,6 +223,7 @@ private fun AppointmentsTab(
     onMapClick        : (Appointment) -> Unit,
     onRescheduleClick : (Appointment) -> Unit,
     isLoadingMoreHistory: Boolean,
+    rootNavController:NavController,
     onRetryUpcoming   : () -> Unit,
     onRetryHistory    : () -> Unit
 ) {
@@ -277,50 +271,73 @@ private fun AppointmentsTab(
 
         // ── Previous Appointments ─────────────────────────────────────
         item {
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text       = "Previous Appointments",
-                fontWeight = FontWeight.Bold,
-                fontSize   = 16.sp
-            )
+            Row(
+                verticalAlignment     = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier              = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text       = "Previous Appointments",
+                    fontWeight = FontWeight.Bold,
+                    fontSize   = 16.sp
+                )
+                // ── View More ─────────────────────────────────────────────
+                TextButton(onClick = {
+                    rootNavController.navigate("appointmentHistory")
+                } ) {
+                    Text(
+                        text     = "View More",
+                        fontSize = 13.sp,
+                        color    = MaterialTheme.colorScheme.primary
+                    )
+                    Icon(
+                        imageVector        = Icons.AutoMirrored.Filled.ArrowForwardIos,
+                        contentDescription = null,
+                        tint               = MaterialTheme.colorScheme.primary,
+                        modifier           = Modifier.size(12.dp)
+                    )
+                }
+            }
         }
 
+
         when (historyState) {
+            is UiState.Loading -> {
+                item { AppointmentGridShimmer() }
+            }
             is UiState.Success -> {
-                val history = historyState.data
-                if (isLoadingMoreHistory) {
-                    item {
-                        Box(
-                            contentAlignment = Alignment.Center,
-                            modifier         = Modifier
-                                .fillMaxWidth()
-                                .padding(16.dp)
-                        ) {
-                            CircularProgressIndicator(
-                                color    = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.size(28.dp)
-                            )
-                        }
-                    }
-                }
+                val history = historyState.data.take(4)  // ← show only 4 in grid
                 if (history.isEmpty()) {
                     item { EmptyAppointments(label = "No previous appointments") }
                 } else {
-                    items(history, key = { it.id }) { appointment ->
-                        AppointmentCard(
-                            appointment       = appointment,
-                            onClick           = { onAppointmentClick(appointment) },
-                            onMapClick        = { onMapClick(appointment) },
-                            onRescheduleClick = { onRescheduleClick(appointment) },
-                            showActions       = false
-                        )
+                    item {
+                        // ── 2 column grid ─────────────────────────────────
+                        val rows = history.chunked(2)
+                        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                            rows.forEach { rowItems ->
+                                Row(
+                                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                    modifier              = Modifier.fillMaxWidth()
+                                ) {
+                                    rowItems.forEach { appointment ->
+                                        AppointmentGridCard(
+                                            appointment = appointment,
+                                            onClick     = {  },
+                                            modifier    = Modifier.weight(1f)
+                                        )
+                                    }
+
+                                    if (rowItems.size == 1) {
+                                        Spacer(modifier = Modifier.weight(1f))
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
             is UiState.Error -> {
-                item {
-                    ErrorRow(onRetry = onRetryHistory)
-                }
+                item { ErrorRow(onRetry = onRetryHistory) }
             }
             else -> Unit
         }

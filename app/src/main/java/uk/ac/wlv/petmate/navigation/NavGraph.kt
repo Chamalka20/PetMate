@@ -16,6 +16,7 @@ import org.koin.compose.viewmodel.koinViewModel
 import uk.ac.wlv.petmate.core.UiState
 import uk.ac.wlv.petmate.screens.SignInScreen
 import uk.ac.wlv.petmate.screens.SplashScreen
+import uk.ac.wlv.petmate.screens.appointment.AppointmentHistoryScreen
 import uk.ac.wlv.petmate.screens.appointment.AppointmentSummaryScreen
 import uk.ac.wlv.petmate.screens.pet.PetDetailsScreen
 import uk.ac.wlv.petmate.screens.pet.PetEditScreen
@@ -350,6 +351,20 @@ fun NavGraph(
                             )
                         }
                     }
+                )
+
+            }
+            composable("appointmentHistory") {
+                val parentEntry = remember(it) {
+                    navController.getBackStackEntry("authenticated")
+                }
+                val appointmentViewModel: AppointmentViewModel = koinViewModel(
+                    viewModelStoreOwner = parentEntry
+                )
+                AppointmentHistoryScreen(
+                    appointmentViewModel = appointmentViewModel,
+                    onBack               = { navController.popBackStack() },
+                    onAppointmentClick   = { }
                 )
             }
         }
