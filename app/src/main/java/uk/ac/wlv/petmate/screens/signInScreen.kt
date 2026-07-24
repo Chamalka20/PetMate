@@ -25,8 +25,8 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import org.koin.androidx.compose.koinViewModel
 import uk.ac.wlv.petmate.R
 import uk.ac.wlv.petmate.components.ImageTextButton
 import uk.ac.wlv.petmate.core.SnackbarController
@@ -41,8 +41,8 @@ import uk.ac.wlv.petmate.viewmodel.PetProfileViewModel
 @Composable
 fun SignInScreen(
     navController: NavHostController,
-    authViewModel: AuthViewModel = koinViewModel(),
-    petProfileViewModel: PetProfileViewModel = koinViewModel(),
+    authViewModel: AuthViewModel =  hiltViewModel(),
+    petProfileViewModel: PetProfileViewModel =  hiltViewModel(),
 
     ) {
     val loginState by authViewModel.loginState.collectAsState()

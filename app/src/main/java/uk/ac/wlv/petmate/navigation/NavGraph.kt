@@ -6,13 +6,13 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
-import org.koin.compose.viewmodel.koinViewModel
 import uk.ac.wlv.petmate.core.UiState
 import uk.ac.wlv.petmate.screens.SignInScreen
 import uk.ac.wlv.petmate.screens.SplashScreen
@@ -34,7 +34,7 @@ import uk.ac.wlv.petmate.viewmodel.VetViewModel
 
 @Composable
 fun NavGraph(
-    sessionViewModel: SessionViewModel = koinViewModel()
+    sessionViewModel: SessionViewModel  = hiltViewModel()
 ) {
     val navController = rememberNavController()
     val isLoggedIn by sessionViewModel.isLoggedIn.collectAsState()
@@ -86,13 +86,13 @@ fun NavGraph(
                     navController.getBackStackEntry("authenticated")
                 }
 
-                val petProfileViewModel: PetProfileViewModel = koinViewModel(
+                val petProfileViewModel: PetProfileViewModel =hiltViewModel(
                     viewModelStoreOwner = parentEntry
                 )
-                val appointmentViewModel: AppointmentViewModel = koinViewModel(
+                val appointmentViewModel: AppointmentViewModel = hiltViewModel(
                     viewModelStoreOwner = parentEntry
                 )
-                val vetViewModel: VetViewModel = koinViewModel(
+                val vetViewModel: VetViewModel = hiltViewModel(
                     viewModelStoreOwner = parentEntry
                 )
                 val tab = backStackEntry.arguments?.getString("tab") ?: "home"
@@ -123,7 +123,7 @@ fun NavGraph(
                         null
                     }
                 }
-                val petProfileViewModel: PetProfileViewModel = koinViewModel(
+                val petProfileViewModel: PetProfileViewModel = hiltViewModel(
                     viewModelStoreOwner = parentEntry ?: backStackEntry
                 )
 
@@ -143,7 +143,7 @@ fun NavGraph(
                 val parentEntry = remember(backStackEntry) {
                     navController.getBackStackEntry("authenticated")
                 }
-                val petProfileViewModel: PetProfileViewModel = koinViewModel(
+                val petProfileViewModel: PetProfileViewModel = hiltViewModel(
                     viewModelStoreOwner = parentEntry
                 )
                 PetDetailsScreen(
@@ -162,7 +162,7 @@ fun NavGraph(
                 val parentEntry = remember(backStackEntry) {
                     navController.getBackStackEntry("authenticated")
                 }
-                val petProfileViewModel: PetProfileViewModel = koinViewModel(
+                val petProfileViewModel: PetProfileViewModel = hiltViewModel(
                     viewModelStoreOwner = parentEntry
                 )
                 PetEditScreen(
@@ -180,10 +180,10 @@ fun NavGraph(
                 val parentEntry = remember(backStackEntry) {
                     navController.getBackStackEntry("authenticated")
                 }
-                val vetViewModel: VetViewModel = koinViewModel(
+                val vetViewModel: VetViewModel = hiltViewModel(
                     viewModelStoreOwner = parentEntry
                 )
-                val appointmentViewModel: AppointmentViewModel = koinViewModel(
+                val appointmentViewModel: AppointmentViewModel = hiltViewModel(
                     viewModelStoreOwner = parentEntry
                 )
                 VetsListScreen(
@@ -216,7 +216,7 @@ fun NavGraph(
                 val parentEntry = remember(backStackEntry) {
                     navController.getBackStackEntry("authenticated")
                 }
-                val vetViewModel: VetViewModel = koinViewModel(
+                val vetViewModel: VetViewModel = hiltViewModel(
                     viewModelStoreOwner = parentEntry
                 )
                 NearbyVetsMapScreen(
@@ -236,13 +236,13 @@ fun NavGraph(
                 val parentEntry = remember(backStackEntry) {
                     navController.getBackStackEntry("authenticated")
                 }
-                val vetViewModel: VetViewModel = koinViewModel(
+                val vetViewModel: VetViewModel = hiltViewModel(
                     viewModelStoreOwner = parentEntry
                 )
-                val appointmentViewModel: AppointmentViewModel = koinViewModel(
+                val appointmentViewModel: AppointmentViewModel = hiltViewModel(
                     viewModelStoreOwner = parentEntry
                 )
-                val petProfileViewModel: PetProfileViewModel = koinViewModel(
+                val petProfileViewModel: PetProfileViewModel = hiltViewModel(
                     viewModelStoreOwner = parentEntry
                 )
                 VetDetailsScreen(
@@ -266,13 +266,13 @@ fun NavGraph(
                 val parentEntry = remember(backStackEntry) {
                     navController.getBackStackEntry("authenticated")
                 }
-                val vetViewModel: VetViewModel = koinViewModel(
+                val vetViewModel: VetViewModel = hiltViewModel(
                     viewModelStoreOwner = parentEntry
                 )
-                val appointmentViewModel: AppointmentViewModel = koinViewModel(
+                val appointmentViewModel: AppointmentViewModel = hiltViewModel(
                     viewModelStoreOwner = parentEntry
                 )
-                val petProfileViewModel: PetProfileViewModel = koinViewModel(
+                val petProfileViewModel: PetProfileViewModel = hiltViewModel(
                     viewModelStoreOwner = parentEntry
                 )
                 LaunchedEffect(selectedType) {
@@ -303,8 +303,8 @@ fun NavGraph(
                 val parentEntry = remember(backStackEntry) {
                     navController.getBackStackEntry("authenticated")
                 }
-                val vetViewModel         : VetViewModel         = koinViewModel(viewModelStoreOwner = parentEntry)
-                val appointmentViewModel : AppointmentViewModel = koinViewModel(viewModelStoreOwner = parentEntry)
+                val vetViewModel         : VetViewModel         = hiltViewModel(viewModelStoreOwner = parentEntry)
+                val appointmentViewModel : AppointmentViewModel = hiltViewModel(viewModelStoreOwner = parentEntry)
 
                 val vetState by vetViewModel.selectedVetState.collectAsState()
                 val vet = (vetState as? UiState.Success)?.data ?: return@composable
@@ -321,7 +321,7 @@ fun NavGraph(
                 val parentEntry = remember(backStackEntry) {
                     navController.getBackStackEntry("authenticated")
                 }
-                val appointmentViewModel: AppointmentViewModel = koinViewModel(
+                val appointmentViewModel: AppointmentViewModel =hiltViewModel(
                     viewModelStoreOwner = parentEntry
                 )
 
@@ -358,7 +358,7 @@ fun NavGraph(
                 val parentEntry = remember(it) {
                     navController.getBackStackEntry("authenticated")
                 }
-                val appointmentViewModel: AppointmentViewModel = koinViewModel(
+                val appointmentViewModel: AppointmentViewModel = hiltViewModel(
                     viewModelStoreOwner = parentEntry
                 )
                 AppointmentHistoryScreen(

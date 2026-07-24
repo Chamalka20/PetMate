@@ -1,7 +1,8 @@
 package uk.ac.wlv.petmate.viewmodel
 
-import android.R
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
+import jakarta.inject.Inject
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -11,9 +12,9 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import uk.ac.wlv.petmate.core.SnackbarController
 import uk.ac.wlv.petmate.core.UiState
+import uk.ac.wlv.petmate.core.utils.NetworkObserver
 import uk.ac.wlv.petmate.core.utils.safeApiCall
 import uk.ac.wlv.petmate.data.model.Appointment
-import uk.ac.wlv.petmate.data.model.AppointmentActionResponse
 import uk.ac.wlv.petmate.data.model.AvailableSlotsDto
 import uk.ac.wlv.petmate.data.model.BookAppointmentRequest
 import uk.ac.wlv.petmate.data.model.CancelAppointmentRequest
@@ -24,8 +25,9 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 @OptIn(FlowPreview::class)
-class AppointmentViewModel(
-    private val repository: AppointmentRepository
+@HiltViewModel
+class AppointmentViewModel @Inject constructor(
+    private val repository: AppointmentRepository, private val networkObserver: NetworkObserver
 ) :  BaseViewModel() {
 
     // ── Book appointment ──────────────────────────────────────────────
@@ -110,6 +112,9 @@ class AppointmentViewModel(
     // ─────────────────────────────────────────────────────────────────
     fun bookAppointment(request: BookAppointmentRequest) {
         viewModelScope.launch {
+            if (!checkInternet(networkObserver)) {
+                return@launch
+            }
             _bookState.value = UiState.Loading
             val result = safeApiCall {
                 repository.bookAppointment(request)
@@ -137,6 +142,9 @@ class AppointmentViewModel(
     // ─────────────────────────────────────────────────────────────────
     fun loadUpcomingAppointments() {
         viewModelScope.launch {
+            if (!checkInternet(networkObserver)) {
+                return@launch
+            }
             _upcomingState.value = UiState.Loading
 
             val result = safeApiCall {
@@ -162,6 +170,9 @@ class AppointmentViewModel(
     fun loadAppointmentHistory(isRefresh: Boolean = false ,vetName: String? = null,
                                appointmentDate: String? = null) {
         viewModelScope.launch {
+            if (!checkInternet(networkObserver)) {
+                return@launch
+            }
             if (isRefresh) {
                 _historyList.clear()
 
@@ -186,6 +197,9 @@ class AppointmentViewModel(
     fun loadMoreHistory() {
         if (historyIsLastPage || _isLoadingMoreHistory.value) return
         viewModelScope.launch {
+            if (!checkInternet(networkObserver)) {
+                return@launch
+            }
             _isLoadingMoreHistory.value = true
             val result = safeApiCall {
                 repository.getAppointmentHistory(isRefresh = false,  vetName = _historySearchQuery.value.ifBlank { null },
@@ -225,6 +239,9 @@ class AppointmentViewModel(
     // ─────────────────────────────────────────────────────────────────
     fun loadAppointment(id: Int) {
         viewModelScope.launch {
+            if (!checkInternet(networkObserver)) {
+                return@launch
+            }
             _appointmentState.value = UiState.Loading
 
             val result = safeApiCall {
@@ -260,6 +277,9 @@ class AppointmentViewModel(
     // ─────────────────────────────────────────────────────────────────
     fun cancelAppointment(id: Int, reason: String,cancelledBy: String) {
         viewModelScope.launch {
+            if (!checkInternet(networkObserver)) {
+                return@launch
+            }
             _cancelState.value = UiState.Loading
             val result = safeApiCall {
                 repository.cancelAppointment(
@@ -297,6 +317,9 @@ class AppointmentViewModel(
         paymentMethod: String?
     ) {
         viewModelScope.launch {
+            if (!checkInternet(networkObserver)) {
+                return@launch
+            }
             val result = safeApiCall {
                 repository.updatePayment(
                     id = id,
@@ -315,6 +338,9 @@ class AppointmentViewModel(
     // ─────────────────────────────────────────────────────────────────
     fun loadAvailableSlots(vetId: Int, date: LocalDate) {
         viewModelScope.launch {
+            if (!checkInternet(networkObserver)) {
+                return@launch
+            }
             _slotsState.value = UiState.Loading
             val dateString = date.format(DateTimeFormatter.ISO_LOCAL_DATE)
             val result = safeApiCall {

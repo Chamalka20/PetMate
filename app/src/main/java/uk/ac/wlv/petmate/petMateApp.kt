@@ -2,11 +2,10 @@ package uk.ac.wlv.petmate
 
 import android.app.Application
 import com.google.firebase.FirebaseApp
-import org.koin.android.ext.koin.androidContext
-import org.koin.core.context.startKoin
+import dagger.hilt.android.HiltAndroidApp
 import org.osmdroid.config.Configuration
-import uk.ac.wlv.petmate.di.viewModelModule
 
+@HiltAndroidApp
 class PetMateApp : Application() {
     override fun onCreate() {
         super.onCreate()
@@ -15,9 +14,6 @@ class PetMateApp : Application() {
             this,
             getSharedPreferences("osmdroid", MODE_PRIVATE)
         )
-        startKoin {
-            androidContext(this@PetMateApp)
-            modules(viewModelModule)
-        }
+
     }
 }

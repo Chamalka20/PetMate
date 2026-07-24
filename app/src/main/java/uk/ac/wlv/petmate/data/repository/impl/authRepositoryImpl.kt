@@ -1,10 +1,11 @@
 package uk.ac.wlv.petmate.data.repository.impl
+import jakarta.inject.Inject
 import uk.ac.wlv.petmate.data.datasources.local.UserCache
 import uk.ac.wlv.petmate.data.datasources.remote.UserDataSource
 import uk.ac.wlv.petmate.data.model.ApiUser
 import uk.ac.wlv.petmate.data.repository.AuthRepository
 
-class AuthRepositoryImpl(
+class AuthRepositoryImpl @Inject constructor(
     private val userCache: UserCache,
     private val UserDataSource: UserDataSource
 ) : AuthRepository {

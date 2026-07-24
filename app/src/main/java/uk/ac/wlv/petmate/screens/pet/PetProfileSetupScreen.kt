@@ -33,8 +33,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
-import org.koin.androidx.compose.koinViewModel
-import uk.ac.wlv.petmate.components.CustomSnackbarHost
 import uk.ac.wlv.petmate.core.UiState
 import uk.ac.wlv.petmate.screens.pet.steps.PetAgeStep
 import uk.ac.wlv.petmate.screens.pet.steps.PetImageStep
