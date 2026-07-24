@@ -1,11 +1,12 @@
 package uk.ac.wlv.petmate.data.repository.impl
 
 import com.google.firebase.auth.FirebaseAuth
+import jakarta.inject.Inject
 import uk.ac.wlv.petmate.data.datasources.remote.PetRemoteDataSource
 import uk.ac.wlv.petmate.data.repository.PetRepository
 import uk.ac.wlv.petmate.data.model.Pet
 
-class PetRepositoryImpl(
+class PetRepositoryImpl @Inject constructor(
     private val remoteDataSource: PetRemoteDataSource
 ) : PetRepository {
     private val userId: String

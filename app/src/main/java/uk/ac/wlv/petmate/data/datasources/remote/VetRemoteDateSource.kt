@@ -4,6 +4,7 @@ import android.util.Log
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.firestore
+import jakarta.inject.Inject
 import kotlinx.coroutines.tasks.await
 import uk.ac.wlv.petmate.core.utils.Constants.PAGE_SIZE
 import uk.ac.wlv.petmate.data.model.Pet
@@ -13,7 +14,7 @@ import uk.ac.wlv.petmate.data.model.VetFilterState
 import uk.ac.wlv.petmate.data.network.ApiClient
 import kotlin.math.ceil
 
-class VetRemoteDataSource(
+class VetRemoteDataSource @Inject constructor(
 
 ) {
 

@@ -6,6 +6,8 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.google.services)
+    alias(libs.plugins.hilt)
+    alias(libs.plugins.kotlin.kapt)
 }
 
 val localProperties = Properties()
@@ -156,15 +158,18 @@ dependencies {
     // ================= PERMISSIONS =================
     implementation("com.google.accompanist:accompanist-permissions:0.37.3")
 
-    // ================= DEPENDENCY INJECTION (KOIN) =================
-    implementation(libs.koin.android)
-    implementation(libs.koin.compose)
-    implementation(libs.koin.androidx.compose.v411)
+    // ================= DEPENDENCY INJECTION (HILT) =================
+    implementation(libs.hilt.android)
+    kapt(libs.hilt.compiler)
+    implementation(libs.androidx.hilt.navigation.compose)
+
     implementation(libs.googleid)
     implementation(libs.androidx.compose.foundation.foundation.layout2)
     implementation(libs.androidx.compose.foundation.foundation3)
 
     // ================= UI TOOLING =================
+    implementation(libs.hilt.android)
+
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 

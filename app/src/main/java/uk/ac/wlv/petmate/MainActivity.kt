@@ -9,11 +9,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Modifier
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
+import dagger.hilt.android.AndroidEntryPoint
 import uk.ac.wlv.petmate.components.CustomSnackbarHost
 import uk.ac.wlv.petmate.navigation.NavGraph
 import uk.ac.wlv.petmate.ui.theme.PetMateTheme
 
-
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {

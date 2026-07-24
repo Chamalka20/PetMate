@@ -36,7 +36,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import org.koin.compose.koinInject
+import androidx.hilt.navigation.compose.hiltViewModel
 import uk.ac.wlv.petmate.components.SegmentedToggle
 import uk.ac.wlv.petmate.components.SegmentedToggleItem
 import uk.ac.wlv.petmate.data.model.AppointmentDay
@@ -178,7 +178,7 @@ private fun HomeAddressInput(
     // ── Location search bottom sheet ──────────────────────────────────
     if (showSearchSheet) {
         LocationSearchBottomSheet(
-            vetViewModel = koinInject(),
+            vetViewModel =  hiltViewModel(),
             onLocationSelected = { lat, lon, name ->
                 address = name
                 onAddressSelected(name, lat, lon)

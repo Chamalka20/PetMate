@@ -13,9 +13,10 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import java.io.ByteArrayOutputStream
 import kotlin.coroutines.resumeWithException
 import androidx.core.graphics.scale
+import jakarta.inject.Inject
 import kotlin.coroutines.resume
 
-class ImageDataSource(private val context: Context) {
+class ImageDataSource @Inject constructor(private val context: Context) {
 
     companion object {
         private const val TAG = "ImageDataSource"

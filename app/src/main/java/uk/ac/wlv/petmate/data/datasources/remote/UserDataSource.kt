@@ -3,13 +3,14 @@ package uk.ac.wlv.petmate.data.datasources.remote
 import android.util.Log
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
+import jakarta.inject.Inject
 import uk.ac.wlv.petmate.data.model.ApiUser
 import uk.ac.wlv.petmate.data.model.GoogleSignInRequest
 import uk.ac.wlv.petmate.data.model.LoginRequest
 import uk.ac.wlv.petmate.data.model.RegisterRequest
 import uk.ac.wlv.petmate.data.network.ApiClient
 
-class UserDataSource {
+class UserDataSource @Inject constructor() {
 
     private val auth = Firebase.auth
 

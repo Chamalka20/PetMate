@@ -2,6 +2,8 @@ package uk.ac.wlv.petmate.viewmodel
 
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.common.api.ResolvableApiException
+import dagger.hilt.android.lifecycle.HiltViewModel
+import jakarta.inject.Inject
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -14,6 +16,7 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import uk.ac.wlv.petmate.core.UiState
+import uk.ac.wlv.petmate.core.utils.NetworkObserver
 import uk.ac.wlv.petmate.core.utils.safeApiCall
 import uk.ac.wlv.petmate.data.model.NominatimResult
 import uk.ac.wlv.petmate.data.model.Vet
@@ -24,7 +27,8 @@ import uk.ac.wlv.petmate.screens.vet.haversineDistance
 import uk.ac.wlv.petmate.services.LocationService
 
 @OptIn(FlowPreview::class)
-class VetViewModel(private val vetRepository: VetRepository, private val locationService: LocationService, private val locationSearchRepository: LocationSearchRepository) : BaseViewModel() {
+@HiltViewModel
+class VetViewModel @Inject constructor(private val vetRepository: VetRepository, private val locationService: LocationService, private val locationSearchRepository: LocationSearchRepository, private val networkObserver: NetworkObserver) : BaseViewModel() {
 
 
 
@@ -62,6 +66,9 @@ class VetViewModel(private val vetRepository: VetRepository, private val locatio
 
             // Debounce search — wait 500ms after user stops typing
             viewModelScope.launch {
+                if (!checkInternet(networkObserver)) {
+                    return@launch
+                }
                 _searchQuery
                     .debounce(500)
                     .distinctUntilChanged()
@@ -125,59 +132,62 @@ class VetViewModel(private val vetRepository: VetRepository, private val locatio
 
     fun loadVetList(isRefresh: Boolean = false, isfilter: Boolean ) {
         viewModelScope.launch {
-if(isfilter) {
-    if (isRefresh) {
-        accumulatedVets.clear()
-        _filteredVetListState.value = UiState.Loading
-    } else {
-        _isLoadingMore.value = true
-    }
+            if (!checkInternet(networkObserver)) {
+                return@launch
+            }
+         if(isfilter) {
+            if (isRefresh) {
+                accumulatedVets.clear()
+                _filteredVetListState.value = UiState.Loading
+            } else {
+                _isLoadingMore.value = true
+            }
 
-    val result = safeApiCall {
-        vetRepository.getVetList(
-            isRefresh = isRefresh,
-            filter = _filterState.value,
-            searchQuery = _searchQuery.value
-        )
-    }
+            val result = safeApiCall {
+                vetRepository.getVetList(
+                    isRefresh = isRefresh,
+                    filter = _filterState.value,
+                    searchQuery = _searchQuery.value
+                )
+            }
 
-    result.onSuccess { vets ->
+            result.onSuccess { vets ->
 
-        if (isRefresh) {
-            accumulatedVets.clear()
-        }
+                if (isRefresh) {
+                    accumulatedVets.clear()
+                }
 
-        accumulatedVets.addAll(vets)
+                accumulatedVets.addAll(vets)
 
-        _filteredVetListState.value = UiState.Success(accumulatedVets.toList())
+                _filteredVetListState.value = UiState.Success(accumulatedVets.toList())
 
-    }.onFailure { exception ->
-        _filteredVetListState.value = UiState.Error(exception.message ?: "Failed to load vets")
-    }
+            }.onFailure { exception ->
+                _filteredVetListState.value = UiState.Error(exception.message ?: "Failed to load vets")
+            }
 
-    _isLoadingMore.value = false
-}else {
+            _isLoadingMore.value = false
+        }else {
 
-    val result = safeApiCall {
-        vetRepository.getVetList(
-        )
-    }
+            val result = safeApiCall {
+                vetRepository.getVetList(
+                )
+            }
 
-    result.onSuccess { vets ->
+            result.onSuccess { vets ->
 
-        if (isRefresh) {
-            accumulatedVets.clear()
-        }
+                if (isRefresh) {
+                    accumulatedVets.clear()
+                }
 
-        accumulatedVets.addAll(vets)
+                accumulatedVets.addAll(vets)
 
-        _vetListState.value = UiState.Success(accumulatedVets.toList())
+                _vetListState.value = UiState.Success(accumulatedVets.toList())
 
-    }.onFailure { exception ->
-        _vetListState.value = UiState.Error(exception.message ?: "Failed to load vets")
-    }
+            }.onFailure { exception ->
+                _vetListState.value = UiState.Error(exception.message ?: "Failed to load vets")
+            }
 
-}}
+        }}
     }
 
     fun applyFilter(filter: VetFilterState) {
@@ -200,6 +210,9 @@ if(isfilter) {
 
     fun loadVet(vetId: Int) {
         viewModelScope.launch {
+            if (!checkInternet(networkObserver)) {
+                return@launch
+            }
             _selectedVetState.value = UiState.Loading
             val result = safeApiCall {vetRepository.getVet( vetId)}
             result.onSuccess { vet -> _selectedVetState.value = UiState.Success(vet) }.onFailure {

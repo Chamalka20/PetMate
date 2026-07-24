@@ -3,14 +3,16 @@ package uk.ac.wlv.petmate.viewmodel
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
+import jakarta.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import uk.ac.wlv.petmate.data.datasources.local.UserCache
 import uk.ac.wlv.petmate.data.model.ApiUser
 import uk.ac.wlv.petmate.data.repository.AuthRepository
-
-class SessionViewModel(
+@HiltViewModel
+class SessionViewModel @Inject constructor(
     private val userCache: UserCache
 ) : ViewModel() {
 
