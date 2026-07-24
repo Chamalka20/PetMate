@@ -53,10 +53,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import kotlinx.coroutines.launch
-import org.koin.androidx.compose.koinViewModel
 import uk.ac.wlv.petmate.R
 import uk.ac.wlv.petmate.components.ErrorRow
 import uk.ac.wlv.petmate.components.PullToRefreshLayout
@@ -82,7 +82,7 @@ import uk.ac.wlv.petmate.viewmodel.VetViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(sessionViewModel: SessionViewModel = koinViewModel(),petProfileViewModel: PetProfileViewModel,rootNavController:NavController,vetViewModel: VetViewModel) {
+fun HomeScreen(sessionViewModel: SessionViewModel =  hiltViewModel(),petProfileViewModel: PetProfileViewModel,rootNavController:NavController,vetViewModel: VetViewModel) {
     val ApiUser by sessionViewModel.user.collectAsState()
     val petListState by petProfileViewModel.petListState.collectAsStateWithLifecycle()
     val vetListState by vetViewModel.vetListState.collectAsStateWithLifecycle()

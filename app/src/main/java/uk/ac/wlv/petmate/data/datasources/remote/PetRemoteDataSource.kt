@@ -3,12 +3,13 @@ package uk.ac.wlv.petmate.data.datasources.remote
 import android.util.Log
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.firestore
+import jakarta.inject.Inject
 import kotlinx.coroutines.tasks.await
 import uk.ac.wlv.petmate.data.datasources.local.UserCache
 import uk.ac.wlv.petmate.data.model.Pet
 import uk.ac.wlv.petmate.data.network.ApiClient
 
-class PetRemoteDataSource(private val userCache: UserCache) {
+class PetRemoteDataSource @Inject constructor(private val userCache: UserCache) {
 
     private suspend fun bearerToken() =
         "Bearer ${userCache.getToken()}"

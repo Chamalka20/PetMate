@@ -1,10 +1,11 @@
 package uk.ac.wlv.petmate.data.repository.impl
 import android.net.Uri
+import jakarta.inject.Inject
 import uk.ac.wlv.petmate.data.datasources.remote.ImageDataSource
 import uk.ac.wlv.petmate.data.repository.ImageRepository
 
 
-class ImageRepositoryImpl(
+class ImageRepositoryImpl @Inject constructor(
     private val remoteDataSource: ImageDataSource
 ) : ImageRepository {
 

@@ -5,11 +5,14 @@ import androidx.core.net.toUri
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
+import dagger.hilt.android.lifecycle.HiltViewModel
+import jakarta.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import uk.ac.wlv.petmate.core.UiState
+import uk.ac.wlv.petmate.core.utils.NetworkObserver
 import uk.ac.wlv.petmate.core.utils.safeApiCall
 import uk.ac.wlv.petmate.data.repository.ImageRepository
 import uk.ac.wlv.petmate.data.repository.PetRepository
@@ -17,12 +20,16 @@ import uk.ac.wlv.petmate.data.model.Allergy
 import uk.ac.wlv.petmate.data.model.MedicalCondition
 import uk.ac.wlv.petmate.data.model.Pet
 import uk.ac.wlv.petmate.data.model.PetType
+import uk.ac.wlv.petmate.data.session.SessionManager
 
-class PetProfileViewModel(
+@HiltViewModel
+class PetProfileViewModel @Inject constructor(
         private val petRepository: PetRepository,
         private val imageRepository: ImageRepository,
         private val savedStateHandle: SavedStateHandle,
-        private val sessionViewModel: SessionViewModel
+        private val sessionManager: SessionManager,
+        private val networkObserver: NetworkObserver
+
 ) : BaseViewModel() {
 
     private val _petListState = MutableStateFlow<UiState<List<Pet>>>(UiState.Idle)
@@ -232,28 +239,29 @@ class PetProfileViewModel(
     }
 
     fun deletePet(petId: Int, onSuccess: () -> Unit) {
-        checkInternetAndExecute(
-            onConnected = {
-                viewModelScope.launch {
-                    _savePetState.value = UiState.Loading
-                    val result = safeApiCall { petRepository.deletePet(petId) }
-                    result
-                        .onSuccess {
-                            _savePetState.value = UiState.Idle
-                            loadPetList()
-                            showSuccess("Pet deleted successfully")
-                            onSuccess()
-                        }
-                        .onFailure { exception ->
-                            val message = exception.message ?: "Failed to delete pet"
-                            showError(message)
-                            _savePetState.value = UiState.Error(message)
-                        }
 
-
-                }
+        viewModelScope.launch {
+            if (!checkInternet(networkObserver)) {
+                return@launch
             }
-        )
+            _savePetState.value = UiState.Loading
+            val result = safeApiCall { petRepository.deletePet(petId) }
+            result
+                .onSuccess {
+                    _savePetState.value = UiState.Idle
+                    loadPetList()
+                    showSuccess("Pet deleted successfully")
+                    onSuccess()
+                }
+                .onFailure { exception ->
+                    val message = exception.message ?: "Failed to delete pet"
+                    showError(message)
+                    _savePetState.value = UiState.Error(message)
+                }
+
+
+        }
+
     }
 
     fun updatePet() {
@@ -266,58 +274,56 @@ class PetProfileViewModel(
             showError("No pet selected for update")
             return
         }
-        
-        checkInternetAndExecute(
-            onConnected = {
-                viewModelScope.launch {
-                    _savePetState.value = UiState.Loading
-                    var imageUrl = ""
-                    // Only upload if it's a new content URI or a file path instead of the existing network URL
-                    val currentUri = _petImageUri.value
-                    if (currentUri != null && !currentUri.toString().startsWith("http")) {
-                        val userId = sessionViewModel.user.value?.id
-                            ?: throw IllegalStateException("User not logged in")
-                        val folder = "$userId/pets/profile"
-                        val uploadResult = safeApiCall {
-                            imageRepository.uploadImage(currentUri, folder)
-                        }
-                        uploadResult.onSuccess { url -> imageUrl = url }
-                    } else if (currentUri != null) {
-                        imageUrl = currentUri.toString()
+
+            viewModelScope.launch {
+                _savePetState.value = UiState.Loading
+                var imageUrl = ""
+                // Only upload if it's a new content URI or a file path instead of the existing network URL
+                val currentUri = _petImageUri.value
+                if (currentUri != null && !currentUri.toString().startsWith("http")) {
+                    val userId = sessionManager.getUser()?.id
+                        ?: throw IllegalStateException("User not logged in")
+                    val folder = "$userId/pets/profile"
+                    val uploadResult = safeApiCall {
+                        imageRepository.uploadImage(currentUri, folder)
+                    }
+                    uploadResult.onSuccess { url -> imageUrl = url }
+                } else if (currentUri != null) {
+                    imageUrl = currentUri.toString()
+                }
+
+                val pet = Pet(
+                    id = petId,
+                    name = _petName.value,
+                    type = _petType.value,
+                    age = _petAge.value,
+                    imageUrl = imageUrl,
+                    isSpayedNeutered = _isSpayedNeutered.value ?: false,
+                    medicalConditions = _medicalConditions.value
+                        .filter { it.isSelected }
+                        .map { it.name },
+                    allergies = _allergies.value
+                        .filter { it.isSelected }
+                        .map { it.name }
+                )
+
+                val result = safeApiCall { petRepository.updatePet(pet.id, pet) }
+
+                result
+                    .onSuccess {
+                        _savePetState.value = UiState.Success(pet)
+                        loadPetList()
+                        loadPet(petId)
+                        showSuccess("Pet profile updated successfully!")
+                    }
+                    .onFailure { exception ->
+                        val message = exception.message ?: "Failed to update pet"
+                        showError(message)
+                        _savePetState.value = UiState.Error(message)
                     }
 
-                    val pet = Pet(
-                        id = petId,
-                        name = _petName.value,
-                        type = _petType.value,
-                        age = _petAge.value,
-                        imageUrl = imageUrl,
-                        isSpayedNeutered = _isSpayedNeutered.value ?: false,
-                        medicalConditions = _medicalConditions.value
-                            .filter { it.isSelected }
-                            .map { it.name },
-                        allergies = _allergies.value
-                            .filter { it.isSelected }
-                            .map { it.name }
-                    )
-
-                    val result = safeApiCall { petRepository.updatePet(pet.id, pet) }
-
-                    result
-                        .onSuccess {
-                            _savePetState.value = UiState.Success(pet)
-                            loadPetList()
-                            loadPet(petId)
-                            showSuccess("Pet profile updated successfully!")
-                        }
-                        .onFailure { exception ->
-                            val message = exception.message ?: "Failed to update pet"
-                            showError(message)
-                            _savePetState.value = UiState.Error(message)
-                        }
-                }
             }
-        )
+
     }
 
     fun savePet() {
@@ -325,14 +331,13 @@ class PetProfileViewModel(
             showError("Please select Pet Type")
             return
         }
-        checkInternetAndExecute(
-                onConnected = {
+
                     viewModelScope.launch {
                         _savePetState.value = UiState.Loading
                         var imageUrl = ""
                         _petImageUri.value?.let { uri ->
                             val userId =
-                                sessionViewModel.user.value?.id
+                                sessionManager.getUser()?.id
                                             ?: throw IllegalStateException("User not logged in")
                             val folder = "$userId/pets/profile"
                             val uploadResult = safeApiCall {
@@ -373,8 +378,8 @@ class PetProfileViewModel(
                                     _savePetState.value = UiState.Error(message)
                                 }
                     }
-                }
-        )
+
+
     }
 
     private fun loadMedicalConditions() {

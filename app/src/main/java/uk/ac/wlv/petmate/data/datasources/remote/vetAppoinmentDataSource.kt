@@ -1,5 +1,6 @@
 package uk.ac.wlv.petmate.data.datasources.remote
 import android.util.Log
+import jakarta.inject.Inject
 import uk.ac.wlv.petmate.core.utils.Constants.PAGE_SIZE
 import uk.ac.wlv.petmate.data.datasources.local.UserCache
 import uk.ac.wlv.petmate.data.model.Appointment
@@ -12,7 +13,7 @@ import uk.ac.wlv.petmate.data.network.ApiClient
 import kotlin.math.ceil
 
 
-class AppointmentRemoteDataSource(
+class AppointmentRemoteDataSource @Inject constructor(
     private val userCache: UserCache
 ) {
     private suspend fun bearerToken() =

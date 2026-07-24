@@ -13,7 +13,6 @@ import uk.ac.wlv.petmate.screens.mainScreens.CareScreen
 import uk.ac.wlv.petmate.screens.mainScreens.home.HomeScreen
 import uk.ac.wlv.petmate.screens.mainScreens.ProfileScreen
 import androidx.navigation.compose.rememberNavController
-import org.koin.androidx.compose.koinViewModel
 import uk.ac.wlv.petmate.screens.mainScreens.EmergencyScreen
 import uk.ac.wlv.petmate.screens.mainScreens.medlog.MedLogScreen
 import uk.ac.wlv.petmate.viewmodel.AppointmentViewModel

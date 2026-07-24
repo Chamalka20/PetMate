@@ -1,5 +1,6 @@
 package uk.ac.wlv.petmate.data.repository.impl
 
+import jakarta.inject.Inject
 import uk.ac.wlv.petmate.data.datasources.remote.AppointmentRemoteDataSource
 import uk.ac.wlv.petmate.data.model.Appointment
 import uk.ac.wlv.petmate.data.model.AppointmentActionResponse
@@ -9,7 +10,7 @@ import uk.ac.wlv.petmate.data.model.CancelAppointmentRequest
 import uk.ac.wlv.petmate.data.model.UpdatePaymentRequest
 import uk.ac.wlv.petmate.data.repository.AppointmentRepository
 
-class AppointmentRepositoryImpl(
+class AppointmentRepositoryImpl @Inject constructor(
     private val dataSource: AppointmentRemoteDataSource
 ) : AppointmentRepository {
     override val historyIsLastPage: Boolean
