@@ -33,7 +33,7 @@ class PetRemoteDataSource @Inject constructor(private val userCache: UserCache) 
         val response = ApiClient.petApi.getPetList(
             token = bearerToken()
         )
-
+Log.d("tokene",bearerToken())
         if (response.isSuccessful) {
             val body = response.body()
             return body?.pets ?: emptyList()
