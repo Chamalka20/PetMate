@@ -28,6 +28,7 @@ import uk.ac.wlv.petmate.screens.vet.VetDetailsScreen
 import uk.ac.wlv.petmate.screens.vet.VetsListScreen
 import uk.ac.wlv.petmate.viewmodel.AppointmentViewModel
 import uk.ac.wlv.petmate.viewmodel.PetProfileViewModel
+import uk.ac.wlv.petmate.viewmodel.PrescriptionViewModel
 import uk.ac.wlv.petmate.viewmodel.SessionViewModel
 import uk.ac.wlv.petmate.viewmodel.VetViewModel
 
@@ -95,13 +96,18 @@ fun NavGraph(
                 val vetViewModel: VetViewModel = hiltViewModel(
                     viewModelStoreOwner = parentEntry
                 )
+                val prescriptionViewModel: PrescriptionViewModel = hiltViewModel(
+                    viewModelStoreOwner = parentEntry
+                )
                 val tab = backStackEntry.arguments?.getString("tab") ?: "home"
                 MainScreen(
                     tab = tab,
                     rootNavController = navController,
                     petProfileViewModel = petProfileViewModel,
                     vetViewModel = vetViewModel,
-                    appointmentViewModel= appointmentViewModel
+                    appointmentViewModel= appointmentViewModel,
+                    prescriptionViewModel =prescriptionViewModel
+
                 )
             }
 

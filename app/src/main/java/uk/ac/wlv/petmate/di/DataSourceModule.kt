@@ -11,6 +11,7 @@ import uk.ac.wlv.petmate.data.datasources.local.UserCache
 import uk.ac.wlv.petmate.data.datasources.remote.AppointmentRemoteDataSource
 import uk.ac.wlv.petmate.data.datasources.remote.ImageDataSource
 import uk.ac.wlv.petmate.data.datasources.remote.PetRemoteDataSource
+import uk.ac.wlv.petmate.data.datasources.remote.PrescriptionRemoteDataSource
 import uk.ac.wlv.petmate.data.datasources.remote.UserDataSource
 import uk.ac.wlv.petmate.data.datasources.remote.VetRemoteDataSource
 
@@ -65,6 +66,15 @@ object DataSourceModule {
     ): AppointmentRemoteDataSource {
 
         return AppointmentRemoteDataSource(userCache)
+    }
+
+    @Provides
+    @Singleton
+    fun providePrescriptionRemoteDataSource(
+
+    ): PrescriptionRemoteDataSource {
+
+        return PrescriptionRemoteDataSource()
     }
 
 }

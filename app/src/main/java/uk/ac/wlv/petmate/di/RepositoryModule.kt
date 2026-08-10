@@ -11,12 +11,14 @@ import uk.ac.wlv.petmate.data.repository.AuthRepository
 import uk.ac.wlv.petmate.data.repository.ImageRepository
 import uk.ac.wlv.petmate.data.repository.LocationSearchRepository
 import uk.ac.wlv.petmate.data.repository.PetRepository
+import uk.ac.wlv.petmate.data.repository.PrescriptionRepository
 import uk.ac.wlv.petmate.data.repository.VetRepository
 import uk.ac.wlv.petmate.data.repository.impl.AppointmentRepositoryImpl
 import uk.ac.wlv.petmate.data.repository.impl.AuthRepositoryImpl
 import uk.ac.wlv.petmate.data.repository.impl.ImageRepositoryImpl
 import uk.ac.wlv.petmate.data.repository.impl.LocationSearchRepositoryImpl
 import uk.ac.wlv.petmate.data.repository.impl.PetRepositoryImpl
+import uk.ac.wlv.petmate.data.repository.impl.PrescriptionRepositoryImpl
 import uk.ac.wlv.petmate.data.repository.impl.VetRepositoryImpl
 
 @Module
@@ -64,5 +66,11 @@ abstract class RepositoryModule {
     abstract fun bindAppointmentRepository(
         impl: AppointmentRepositoryImpl
     ): AppointmentRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindPrescriptionRepository(
+        impl: PrescriptionRepositoryImpl
+    ): PrescriptionRepository
 
 }

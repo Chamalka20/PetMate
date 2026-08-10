@@ -17,10 +17,11 @@ import uk.ac.wlv.petmate.screens.mainScreens.EmergencyScreen
 import uk.ac.wlv.petmate.screens.mainScreens.medlog.MedLogScreen
 import uk.ac.wlv.petmate.viewmodel.AppointmentViewModel
 import uk.ac.wlv.petmate.viewmodel.PetProfileViewModel
+import uk.ac.wlv.petmate.viewmodel.PrescriptionViewModel
 import uk.ac.wlv.petmate.viewmodel.VetViewModel
 
 @Composable
-fun MainScreen(  tab: String?,rootNavController: NavController,petProfileViewModel: PetProfileViewModel,vetViewModel: VetViewModel,appointmentViewModel: AppointmentViewModel) {
+fun MainScreen(  tab: String?,rootNavController: NavController,petProfileViewModel: PetProfileViewModel,vetViewModel: VetViewModel,appointmentViewModel: AppointmentViewModel,prescriptionViewModel: PrescriptionViewModel) {
     val bottomNavController = rememberNavController()
     val startDestination =
         if(tab == "medlog") {
@@ -42,6 +43,7 @@ fun MainScreen(  tab: String?,rootNavController: NavController,petProfileViewMod
             composable("medlog") {
                 MedLogScreen(
                     appointmentViewModel = appointmentViewModel,
+                    prescriptionViewModel =prescriptionViewModel,
                     rootNavController = rootNavController
                 )
             }
